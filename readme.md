@@ -33,9 +33,16 @@ Use `!:` for required parameters and ` | undefined` for optional parameters.
 
 ```typescript
 Person.setParsers({
-  age: Defined(NumberParser({ min: 0, max: 100 })),
-  state: Defined(StringParser({ maxLen: 2, modifiers: [ModStringUpper] })),
-  firstName: Defined(StringParser({ maxLen: 5 })),
+  age: Defined(
+    NumberParser({
+      modifiers: [
+        ModNumberMinMax({ min: 0, max: 100 }),
+        ModNumberRound(1),
+      ],
+    }),
+  ),
+  state: Defined(StringParser({ modifiers: [ModStringUpper(), ModStringMaxLen(2)] })),
+  firstName: Defined(StringParser({})),
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),
   employer: Defined(StringParser({}), 'unknown'),
@@ -43,6 +50,8 @@ Person.setParsers({
 ```
 
 Parsers are of the form `(v: unknown) => T`, but the package provides a few commonly used ones like `NumberParser` , `StringParser`, and `Defined`.
+
+Most of the provided parsers also take modifiers which are applied to the field. Modifiers are of the form `(T) => T`.
 
 As long as `strict` is set to `true` in `tsconfig.json`, typescript will provide useful errors and warnings as to which parsers are missing and whether they result in expected types
 
