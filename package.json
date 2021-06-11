@@ -1,8 +1,19 @@
 {
   "name": "ts-data-class",
   "description": "Data Classes for Typescript",
-  "version": "0.0.2",
+  "version": "0.1.1",
   "main": "index.js",
+  "keywords": [
+    "ts",
+    "typescript",
+    "data",
+    "class",
+    "data-class",
+    "dataclass",
+    "data class",
+    "copyWith",
+    "parsing"
+  ],
   "scripts": {
     "test": "ts-mocha 'test/**/*.ts' --recursive --timeout 60000 --exit"
   },
