@@ -1,11 +1,14 @@
 import { ParsersNotFoundError } from './errors';
+import { Parser } from './parsers/parsers';
 import { SmartParams } from './utility_types';
 
+// eslint-disable-next-line no-unused-vars
 type DClassConstructor<T extends DClass<T>> = { new(params: DClassParams<T>): T }
 type DClassMembers<T extends DClass<T>> = Pick<T, Exclude<keyof T, keyof DClass<T>>>
 type DClassParams<T extends DClass<T>> = SmartParams<DClassMembers<T>>
 
 export type DClassParsers<T extends DClass<T>> = {
+  // eslint-disable-next-line no-unused-vars
   [K in keyof DClassMembers<T>]-?: (v: unknown) => T[K]
 }
 
@@ -33,7 +36,7 @@ export default abstract class DClass<T extends DClass<T>> {
     return this.instantiate({ ...this, ...params });
   }
 
-  static parse<T extends DClass<T>>(this: DClassConstructor<T>, params: any) {
+  static parse<F extends DClass<F>>(this: DClassConstructor<F>, params: any) {
     return new this(params);
   }
 
@@ -45,20 +48,25 @@ export default abstract class DClass<T extends DClass<T>> {
     // @ts-ignore
     const out: DClassMembers<P> = {};
     Object.keys(parsers).forEach((key) => {
-      const parser = parsers[key];
+      // @ts-ignore
+      const parser: Parser<T> = parsers[key];
       if (parser === undefined) return;
 
       const pValue = params[key];
+      // @ts-ignore
       const cValue = current[key];
 
       if (pValue === undefined) {
         if (cValue === undefined) {
-          out[key] = parser(undefined);
+          // @ts-ignore
+          out[key] = parser(undefined, key);
         } else {
+          // @ts-ignore
           out[key] = cValue;
         }
       } else if (pValue !== cValue) {
-        out[key] = parser(pValue);
+        // @ts-ignore
+        out[key] = parser(pValue, key);
       }
     });
 

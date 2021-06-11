@@ -1,14 +1,17 @@
 // eslint-disable-next-line max-classes-per-file
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
+import {
+  Defined, ModStringUpper, NumberParser, StringParser,
+} from '..';
 import DClass from '../src/data_class';
-import { Defined, NumberParser, StringParser } from '../src/parsers';
 
 class Person extends DClass<Person> {
   firstName!: string
   lastName!: string
-  middleName?: string
-  employer?: string
+  middleName: string | undefined
+  employer: string | undefined
+  state: string | undefined
   age!: number
 }
 
@@ -18,6 +21,7 @@ Person.setParsers({
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),
   employer: Defined(StringParser({}), 'unknown'),
+  state: Defined(StringParser({ maxLen: 2, modifiers: [ModStringUpper] }), 'unknown'),
 });
 
 class WithoutParsers extends DClass<WithoutParsers> {
@@ -25,18 +29,21 @@ class WithoutParsers extends DClass<WithoutParsers> {
 }
 
 const correctParams = {
-  age: 12, employer: 'e', firstName: 'fn', lastName: 'ln', middleName: 'mn',
+  age: 12, employer: 'e', firstName: 'fn', lastName: 'ln', middleName: 'mn', state: 'Florida',
+};
+const expectedParams = {
+  age: 12, employer: 'e', firstName: 'fn', lastName: 'ln', middleName: 'mn', state: 'FL',
 };
 
 describe('DClass constructor tests', () => {
   it('should instantiate a class when all params are provided', () => {
     const person = new Person(correctParams);
-    expect(person).to.contain(correctParams);
+    expect(person).to.contain(expectedParams);
   });
 
   it('should correctly use defaults', () => {
     const person = new Person({ ...correctParams, employer: undefined });
-    expect(person).to.contain({ ...correctParams, employer: 'unknown' });
+    expect(person).to.contain({ ...expectedParams, employer: 'unknown' });
   });
 
   it('should correctly throw an error if no default is provided', () => {

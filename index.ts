@@ -1,9 +1,13 @@
 import DClass from './src/data_class';
-import { NumberParser, StringArrayParser, StringParser } from './src/parsers';
+import Defined from './src/parsers/defined';
+import NumberParser from './src/parsers/number_parser';
+import StringParser, { ModStringLower, ModStringUpper } from './src/parsers/string_parser';
 
 export default DClass;
 export {
   StringParser,
   NumberParser,
-  StringArrayParser,
+  Defined,
+  ModStringUpper,
+  ModStringLower,
 };

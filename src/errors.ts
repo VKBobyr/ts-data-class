@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 export class ParsingError extends Error {
-  constructor(key: string = '') {
-    super(`Unable to parse ${key}`);
+  constructor(key: string = '', info: string = '') {
+    super(`[Parsing Error] Unable to parse the key '${key}' - ${info}`);
   }
 }
 
