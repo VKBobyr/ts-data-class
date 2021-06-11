@@ -42,9 +42,9 @@ Person.setParsers({
 });
 ```
 
-Parsers are of the form `(v: unknown) => T`, but the package provides a few commonly used ones like `NumberParser` , `StringParser`, and `Defined`.`
+Parsers are of the form `(v: unknown) => T`, but the package provides a few commonly used ones like `NumberParser` , `StringParser`, and `Defined`.
 
-As long as `strict` is set to `true` is `tsconfig.json`, typescript will provide useful errors and warnings as to which parsers are missing and whether they result in expected types
+As long as `strict` is set to `true` in `tsconfig.json`, typescript will provide useful errors and warnings as to which parsers are missing and whether they result in expected types
 
 ## Functionality
 
