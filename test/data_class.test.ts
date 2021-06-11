@@ -73,6 +73,10 @@ describe('DClass copyWith tests', () => {
     expect(newPerson).to.include({ ...person, lastName: 'unknown' });
     expect(person).to.include(person);
   });
+
+  it('should throw if required value is explicitly undefined', () => {
+    expect(() => person.copyWith({ firstName: undefined })).to.throw();
+  });
 });
 
 describe('DClass parse tests', () => {
