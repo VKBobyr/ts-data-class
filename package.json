@@ -1,7 +1,7 @@
 {
   "name": "ts-data-class",
   "description": "Data Classes for Typescript",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "index.js",
   "keywords": [

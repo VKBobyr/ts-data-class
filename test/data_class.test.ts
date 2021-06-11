@@ -2,9 +2,11 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import {
-  Defined, ModNumberMinMax, ModNumberRound, ModStringMaxLen, ModStringUpper, NumberParser, StringParser,
+  Defined, NumberParser, StringParser,
 } from '..';
 import DClass from '../src/data_class';
+import { NumberMods } from '../src/parsers/number_parser';
+import { StringMods } from '../src/parsers/string_parser';
 
 class Person extends DClass<Person> {
   firstName!: string
@@ -19,12 +21,12 @@ Person.setParsers({
   age: Defined(
     NumberParser({
       modifiers: [
-        ModNumberMinMax({ min: 0, max: 100 }),
-        ModNumberRound(1),
+        NumberMods.minMax({ min: 0, max: 100 }),
+        NumberMods.round(1),
       ],
     }),
   ),
-  state: Defined(StringParser({ modifiers: [ModStringUpper(), ModStringMaxLen(2)] })),
+  state: Defined(StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] })),
   firstName: Defined(StringParser({})),
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),

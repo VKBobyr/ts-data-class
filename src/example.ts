@@ -1,9 +1,6 @@
-import {
-  Defined, ModStringUpper, NumberParser, StringParser,
+import DClass, {
+  Defined, NumberMods, NumberParser, StringMods, StringParser,
 } from '..';
-import DClass from './data_class';
-import { ModNumberMinMax, ModNumberRound } from './parsers/number_parser';
-import { ModStringMaxLen } from './parsers/string_parser';
 
 class Person extends DClass<Person> {
   firstName!: string // required
@@ -18,12 +15,12 @@ Person.setParsers({
   age: Defined(
     NumberParser({
       modifiers: [
-        ModNumberMinMax({ min: 0, max: 100 }),
-        ModNumberRound(1),
+        NumberMods.minMax({ min: 0, max: 100 }),
+        NumberMods.round(1),
       ],
     }),
   ),
-  state: Defined(StringParser({ modifiers: [ModStringUpper(), ModStringMaxLen(2)] })),
+  state: Defined(StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] })),
   firstName: Defined(StringParser({})),
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),

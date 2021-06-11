@@ -12,7 +12,7 @@ const NumberParser: ConfigParser<number | undefined, NumberParserP> = (params) =
 
 export default NumberParser;
 
-export const ModNumberMinMax: ConfigModifier<number, { min?: number, max?: number; }> = (c) => {
+const ModNumberMinMax: ConfigModifier<number, { min?: number, max?: number; }> = (c) => {
   return (v) => {
     let out = v;
     if (c.min !== undefined) out = Math.max(out, c.min);
@@ -21,10 +21,15 @@ export const ModNumberMinMax: ConfigModifier<number, { min?: number, max?: numbe
   };
 };
 
-export const ModNumberRound: ConfigModifier<number, number> = (decimals) => {
+const ModNumberRound: ConfigModifier<number, number> = (decimals) => {
   return (v) => {
     if (decimals < 0) return v;
     const pow = 10 ** decimals;
     return Math.round(v * pow) / pow;
   };
+};
+
+export const NumberMods = {
+  round: ModNumberRound,
+  minMax: ModNumberMinMax,
 };

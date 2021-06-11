@@ -1,16 +1,15 @@
 import DClass from './src/data_class';
+import BoolParser from './src/parsers/bool_parser';
 import Defined from './src/parsers/defined';
-import NumberParser, { ModNumberMinMax, ModNumberRound } from './src/parsers/number_parser';
-import StringParser, { ModStringLower, ModStringMaxLen, ModStringUpper } from './src/parsers/string_parser';
+import NumberParser, { NumberMods } from './src/parsers/number_parser';
+import StringParser, { StringMods } from './src/parsers/string_parser';
 
 export default DClass;
 export {
   StringParser,
   NumberParser,
   Defined,
-  ModStringUpper,
-  ModStringLower,
-  ModStringMaxLen,
-  ModNumberMinMax,
-  ModNumberRound,
+  StringMods,
+  NumberMods,
+  BoolParser,
 };
