@@ -1,9 +1,7 @@
 import { Modifier } from '../utility_types';
-import { ConfigParser } from './parsers';
+import { ConfigModifier, ConfigParser } from './parsers';
 
 type StringParserP = {
-  maxLen?: number,
-  pattern?: string
   modifiers?: Modifier<string>[]
   // eslint-disable-next-line no-unused-vars
   custom?: (v: string) => string
@@ -12,8 +10,6 @@ type StringParserP = {
 const StringParser: ConfigParser<string | undefined, StringParserP> = (c) => (v) => {
   if (typeof v === 'string') {
     let out = v;
-    if (c.maxLen !== undefined) out = out.substr(0, c.maxLen);
-    if (c.custom !== undefined) out = c.custom(out);
     if (c.modifiers !== undefined) out = c.modifiers.reduce((str, mod) => mod(str), out);
     return out;
   }
@@ -23,5 +19,8 @@ const StringParser: ConfigParser<string | undefined, StringParserP> = (c) => (v)
 
 export default StringParser;
 
-export const ModStringUpper: Modifier<string> = (v) => v.toUpperCase();
-export const ModStringLower: Modifier<string> = (v) => v.toLowerCase();
+export const ModStringUpper: ConfigModifier<string, void> = () => (v) => v.toUpperCase();
+export const ModStringLower: ConfigModifier<string, void> = () => (v) => v.toLowerCase();
+export const ModStringMaxLen: ConfigModifier<string, number> = (maxLen: number) => {
+  return (v) => v.substr(0, maxLen);
+};

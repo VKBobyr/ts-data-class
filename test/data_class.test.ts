@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import {
-  Defined, ModStringUpper, NumberParser, StringParser,
+  Defined, ModNumberMinMax, ModNumberRound, ModStringMaxLen, ModStringUpper, NumberParser, StringParser,
 } from '..';
 import DClass from '../src/data_class';
 
@@ -16,12 +16,19 @@ class Person extends DClass<Person> {
 }
 
 Person.setParsers({
-  age: Defined(NumberParser({ min: 0, max: 100 })),
+  age: Defined(
+    NumberParser({
+      modifiers: [
+        ModNumberMinMax({ min: 0, max: 100 }),
+        ModNumberRound(1),
+      ],
+    }),
+  ),
+  state: Defined(StringParser({ modifiers: [ModStringUpper(), ModStringMaxLen(2)] })),
   firstName: Defined(StringParser({})),
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),
   employer: Defined(StringParser({}), 'unknown'),
-  state: Defined(StringParser({ maxLen: 2, modifiers: [ModStringUpper] }), 'unknown'),
 });
 
 class WithoutParsers extends DClass<WithoutParsers> {
@@ -88,13 +95,12 @@ describe('DClass copyWith tests', () => {
 
 describe('DClass parse tests', () => {
   it('should not include values that arent defined in the parser and use defaults', () => {
-    const goodValues = { firstName: 'fn', age: 42 };
     const badValues = { dog: 'molly', cat: 'jack' };
     const person = Person.parse({
-      ...goodValues, ...badValues,
+      ...correctParams, ...badValues,
     });
 
-    expect(person).to.include({ ...goodValues, lastName: 'unknown' });
+    expect(person).to.include({ ...expectedParams });
     expect(person).to.not.include(badValues);
   });
 

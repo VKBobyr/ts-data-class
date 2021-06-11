@@ -1,7 +1,7 @@
 import DClass from './src/data_class';
 import Defined from './src/parsers/defined';
-import NumberParser from './src/parsers/number_parser';
-import StringParser, { ModStringLower, ModStringUpper } from './src/parsers/string_parser';
+import NumberParser, { ModNumberMinMax, ModNumberRound } from './src/parsers/number_parser';
+import StringParser, { ModStringLower, ModStringMaxLen, ModStringUpper } from './src/parsers/string_parser';
 
 export default DClass;
 export {
@@ -10,4 +10,7 @@ export {
   Defined,
   ModStringUpper,
   ModStringLower,
+  ModStringMaxLen,
+  ModNumberMinMax,
+  ModNumberRound,
 };
