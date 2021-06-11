@@ -1,7 +1,8 @@
 {
-  "name": "ts-starter",
-  "version": "0.0.1",
-  "private": true,
+  "name": "ts-data-class",
+  "description": "Data Classes for Typescript",
+  "version": "0.0.2",
+  "main": "index.js",
   "scripts": {
     "test": "ts-mocha 'test/**/*.ts' --recursive --timeout 60000 --exit"
   },
