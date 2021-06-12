@@ -1,17 +1,10 @@
 import DClass, {
+  DClassMembers,
+  DClassParsers,
   Defined, NumberMods, NumberParser, StringMods, StringParser,
-} from '..';
+} from '../src';
 
-class Person extends DClass<Person> {
-  firstName!: string // required
-  lastName!: string // required
-  age!: number // required
-  middleName: string | undefined // optional
-  employer: string | undefined // optional
-  state: string | undefined // optional
-}
-
-Person.setParsers({
+const parsers: DClassParsers<Person> = {
   age: Defined(
     NumberParser({
       modifiers: [
@@ -20,19 +13,39 @@ Person.setParsers({
       ],
     }),
   ),
-  state: Defined(StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] })),
+  state: Defined(
+    StringParser({
+      modifiers: [
+        StringMods.upper(),
+        StringMods.maxLen(2)],
+    }),
+  ),
   firstName: Defined(StringParser({})),
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),
   employer: Defined(StringParser({}), 'unknown'),
-});
+};
+
+class Person extends DClass<Person> {
+  firstName!: string // required
+  lastName!: string // required
+  age!: number // required
+  middleName?: string // optional
+  employer?: string // optional
+  state?: string; // optional
+
+  constructor(params: DClassMembers<Person>) {
+    super(parsers);
+    this.assign(params);
+  }
+}
 
 const person = new Person({
+  age: 100,
+  state: 'Florida',
   firstName: 'bobby',
-  middleName: 'john',
   lastName: 'jackson',
-  age: 102, // will be clamped to 100 by parser
-  state: 'Florida', // will be clamped to len 2 and made uppercase
+  middleName: 'john',
 });
 console.log(person);
 /*

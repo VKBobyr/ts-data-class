@@ -1,23 +1,13 @@
 // eslint-disable-next-line max-classes-per-file
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import {
-  Defined, NumberParser, StringParser,
-} from '..';
-import DClass from '../src/data_class';
-import { NumberMods } from '../src/parsers/number_parser';
-import { StringMods } from '../src/parsers/string_parser';
+import DClass, {
+  DClassParams,
+  DClassParsers,
+  Defined, NumberMods, NumberParser, StringMods, StringParser,
+} from '../src';
 
-class Person extends DClass<Person> {
-  firstName!: string
-  lastName!: string
-  middleName: string | undefined
-  employer: string | undefined
-  state: string | undefined
-  age!: number
-}
-
-Person.setParsers({
+const parsers: DClassParsers<Person> = {
   age: Defined(
     NumberParser({
       modifiers: [
@@ -31,10 +21,20 @@ Person.setParsers({
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),
   employer: Defined(StringParser({}), 'unknown'),
-});
+};
 
-class WithoutParsers extends DClass<WithoutParsers> {
-  name!: string
+class Person extends DClass<Person> {
+  firstName!: string
+  lastName!: string
+  middleName?: string
+  employer?: string
+  state?: string
+  age!: number
+
+  constructor(params: DClassParams<Person>) {
+    super(parsers);
+    this.assign(params);
+  }
 }
 
 const correctParams = {
@@ -57,10 +57,6 @@ describe('DClass constructor tests', () => {
 
   it('should correctly throw an error if no default is provided', () => {
     expect(() => new Person({ ...correctParams, firstName: undefined })).to.throw();
-  });
-
-  it('should correctly throw an error if parsers not set', () => {
-    expect(() => new WithoutParsers({ name: 'oof' })).to.throw();
   });
 });
 

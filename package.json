@@ -1,9 +1,10 @@
 {
   "name": "ts-data-class",
   "description": "Data Classes for Typescript",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "keywords": [
     "ts",
     "typescript",
@@ -16,7 +17,9 @@
     "parsing"
   ],
   "scripts": {
-    "test": "ts-mocha 'test/**/*.ts' --recursive --timeout 60000 --exit"
+    "test": "ts-mocha 'test/**/*.ts' --recursive --timeout 60000 --exit",
+    "build": "tsc -p .",
+    "publish": "./publish.sh"
   },
   "devDependencies": {
     "@types/chai": "4.2.11",
@@ -34,6 +37,5 @@
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

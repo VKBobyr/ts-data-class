@@ -1,11 +1,9 @@
 import { ParsersNotFoundError } from './errors';
 import { Parser } from './parsers/parsers';
-import { SmartParams } from './utility_types';
 
 // eslint-disable-next-line no-unused-vars
-type DClassConstructor<T extends DClass<T>> = { new(params: DClassParams<T>): T }
-type DClassMembers<T extends DClass<T>> = Pick<T, Exclude<keyof T, keyof DClass<T>>>
-type DClassParams<T extends DClass<T>> = SmartParams<DClassMembers<T>>
+type DClassConstructor<T extends DClass<T>> = { new(params: DClassMembers<T>): T }
+export type DClassMembers<T extends DClass<T>> = Pick<T, Exclude<keyof T, keyof DClass<T>>>
 
 export type DClassParsers<T extends DClass<T>> = {
   // eslint-disable-next-line no-unused-vars
@@ -16,13 +14,18 @@ export type DClassParsers<T extends DClass<T>> = {
 export default abstract class DClass<T extends DClass<T>> {
   static parsers: DClassParsers<any>
 
-  private instantiate(args: DClassParams<T>): T {
+  private instantiate(args: DClassMembers<T>): T {
     const Constructor: T = Object(this).constructor;
     // @ts-ignore
     return new Constructor(args);
   }
 
-  constructor(params: DClassParams<T>) {
+  constructor(parsers: DClassParsers<T>) {
+    // @ts-ignore
+    this.constructor.parsers = parsers;
+  }
+
+  assign(params: DClassMembers<T>) {
     // @ts-ignore
     if (this.constructor.parsers === undefined) throw new ParsersNotFoundError(this);
 

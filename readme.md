@@ -14,25 +14,10 @@ yarn: `yarn add ts-data-class`
 
 ### Define a Class
 
-Define a class `T` extending `DClass<T>`:
+Define a class `T` extending `DClass<T>` that accepts `DClassParams<T>` and calls `super` with the map of parsers for each field:
 
 ```typescript
-class Person extends DClass<Person> {
-  firstName!: string // required
-  lastName!: string // required
-  age!: number // required
-  middleName: string | undefined // optional
-  employer: string | undefined // optional
-  state: string | undefined // optional
-}
-```
-
-Use `!:` for required parameters and ` | undefined` for optional parameters.
-
-### Set Parsers
-
-```typescript
-Person.setParsers({
+const parsers: DClassParsers<Person> = {
   age: Defined(
     NumberParser({
       modifiers: [
@@ -46,14 +31,30 @@ Person.setParsers({
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),
   employer: Defined(StringParser({}), 'unknown'),
-});
+};
+
+class Person extends DClass<Person> {
+  firstName!: string // required
+  lastName!: string // required
+  age!: number // required
+  middleName?: string // optional
+  employer?: string // optional
+  state?: string; // optional
+
+  constructor(params: DClassMembers<Person>) {
+    super(parsers);
+    this.assign(params);
+  }
+}
 ```
 
-Parsers are of the form `(v: unknown) => T`, but the package provides a few commonly used ones like `NumberParser` , `StringParser`, and `Defined`.
+- Use `!:` for required parameters and `?:` for optional parameters.
 
-Most of the provided parsers also take modifiers which are applied to the field. Modifiers are of the form `(T) => T`.
+- Parsers are of the form `(v: unknown) => T`, but the package provides a few commonly used ones like `NumberParser` , `StringParser`, and `Defined`.
 
-As long as `strict` is set to `true` in `tsconfig.json`, typescript will provide useful errors and warnings as to which parsers are missing and whether they result in expected types
+- Most of the provided parsers also take modifiers which are applied to the field. Modifiers are of the form `(T) => T`.
+
+- As long as `strict` is set to `true` in `tsconfig.json`, typescript will provide useful errors and warnings as to which parsers are missing and whether they result in expected types
 
 ## Functionality
 
