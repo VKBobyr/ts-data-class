@@ -112,6 +112,18 @@ export default abstract class DClass<T extends DClass<T>> {
   }
 
   /**
+   * Creates an instance from an empty constructor.
+   * May throw a parsing error if no default is provided for a required field
+   */
+  static empty<F extends DClass<F>>(
+    this: DClassConstructor<F>,
+    params?: Partial<DClassMembers<F>>,
+  ): F {
+    // @ts-ignore
+    return new this(params ?? {});
+  }
+
+  /**
    * Parses params of any type. Usually used on uncontrolled data or API calls.
    * If an exception is thrown during parsing, returns undefined.
    *

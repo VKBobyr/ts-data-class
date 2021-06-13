@@ -247,3 +247,30 @@ describe('DClass equals', () => {
     expect(person.equals('43')).to.eq(false);
   });
 });
+
+describe('DClass empty', () => {
+  const smolParsers: DClassParsers<SmolPerson> = {
+    name: Defined(StringParser({}), 'default name'),
+    age: NumberParser({}),
+  };
+
+  class SmolPerson extends DClass<SmolPerson> {
+    name: string
+    age?: number | undefined
+
+    constructor(params: DClassMembers<SmolPerson>) {
+      super(smolParsers);
+      this.assign(params);
+    }
+  }
+
+  it('should create an empty field with defaults', () => {
+    const person = SmolPerson.empty();
+    expect(person.equals({ name: 'default name', age: undefined }));
+  });
+
+  it('should create an empty field with defaults and provided params', () => {
+    const person = SmolPerson.empty({ age: 42 });
+    expect(person.equals({ name: 'default name', age: 42 }));
+  });
+});
