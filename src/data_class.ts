@@ -1,9 +1,12 @@
+import isEqual from 'lodash.isequal';
+import isUndefined from 'lodash.isundefined';
+import omitBy from 'lodash.omitby';
 import { BadParamsError, ParsersNotFoundError } from './errors';
 import { Parser } from './parsers/parsers';
 
 // eslint-disable-next-line no-unused-vars
 type DClassConstructor<T extends DClass<T>> = { new(params: DClassMembers<T>): T }
-export type DClassMembers<T extends DClass<T>> = Pick<T, Exclude<keyof T, keyof DClass<T>>>
+export type DClassMembers<T = any> = Pick<T, Exclude<keyof T, keyof DClass<any>>>
 
 export type DClassParsers<T extends DClass<T>> = {
   // eslint-disable-next-line no-unused-vars
@@ -13,6 +16,20 @@ export type DClassParsers<T extends DClass<T>> = {
 /* eslint-disable no-unused-vars */
 export default abstract class DClass<T extends DClass<T>> {
   static parsers: DClassParsers<any>
+
+  static get keys(): (keyof DClassMembers)[] {
+    return Object.keys(this.parsers);
+  }
+
+  protected get parsers(): DClassParsers<T> {
+    // @ts-ignore
+    return this.constructor.parsers;
+  }
+
+  private get keys(): (keyof DClassMembers<T>)[] {
+    // @ts-ignore
+    return this.constructor.keys;
+  }
 
   private instantiate(args: DClassMembers<T>): T {
     const Constructor: T = Object(this).constructor;
@@ -32,7 +49,7 @@ export default abstract class DClass<T extends DClass<T>> {
    */
   protected assign(params: DClassMembers<T>) {
     // @ts-ignore
-    if (this.constructor.parsers === undefined) throw new ParsersNotFoundError(this);
+    if (this.parsers === undefined) throw new ParsersNotFoundError(this);
 
     DClass.assertIsObject(params);
     // @ts-ignore
@@ -85,6 +102,33 @@ export default abstract class DClass<T extends DClass<T>> {
     } catch {
       return undefined;
     }
+  }
+
+  /**
+   * Checks whether this DClass is equal to any other object.
+   * Expects another DClass, but safe to use any other type of object.
+   * If an exception is thrown during evaluation, returns false.
+   *
+   * @param params - params with which to try to create a class
+   * @returns an instance of T | undefined
+   */
+  equals(dc: DClassMembers<T> | undefined) : boolean {
+    // @ts-ignore
+    return this.constructor.equal(this, dc);
+  }
+
+  /**
+   * Checks whether two DClasses are equal.
+   * Expects two DClasses, but safe to use any other type of object.
+   * If an exception is thrown during evaluation, returns false.
+   *
+   * @param params - params with which to try to create a class
+   * @returns an instance of T | undefined
+   */
+  static equal<F extends DClassMembers<F>>(dc1: F | undefined, dc2: F | undefined): boolean {
+    const m1 = omitBy({ ...dc1 }, isUndefined);
+    const m2 = omitBy({ ...dc2 }, isUndefined);
+    return isEqual(m1, m2);
   }
 
   protected static parseParams<P extends DClass<P>>(

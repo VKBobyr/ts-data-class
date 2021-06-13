@@ -89,7 +89,7 @@ console.log(person);
  */
 ```
 
-Typescript will suggest parameters and provide warnings if the types are wrong. Instantiating the object will also apply the parsers on each field (defined in `Person.setParsers`).
+Typescript will suggest parameters and provide warnings if the types are wrong. Instantiating the object will also apply the parsers on each field (that we set in the constructor).
 
 ### copyWith
 
@@ -150,6 +150,27 @@ Similar to parse, but returns `undefined` if *any* exception is thrown during pa
 const p1 = Person.tryParse(undefined);
 console.log(p1); // undefined
 
-const p2 = Person.parse({}); // firstName assertion fails
+const p2 = Person.tryParse({}); // firstName assertion fails
 console.log(p2); // undefined
+```
+
+### equal / equals
+
+You can also check equality of two `DClass`es:
+
+```typescript
+person.equals({...person}) // true
+
+person.equals({...person, "firstName": "rambo"}) // false
+person.equals(null) // false
+person.equals(undefined) // false
+person.equals(false) // false
+person.equals(4) // false
+person.equals('43'); // false
+
+// can also use the static version
+Person.equal(person, { ...person }); // true
+Person.equal(person, { ...person, "firstName": "rambo" }); // false
+Person.equal(undefined, undefined); // true
+// etc..
 ```

@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import DClass, {
-  DClassParams,
+  DClassMembers,
   DClassParsers,
   Defined, NumberMods, NumberParser, StringMods, StringParser,
 } from '../src';
@@ -16,7 +16,7 @@ const parsers: DClassParsers<Person> = {
       ],
     }),
   ),
-  state: Defined(StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] })),
+  state: StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] }),
   firstName: Defined(StringParser({})),
   lastName: Defined(StringParser({}), 'unknown'),
   middleName: StringParser({}),
@@ -31,7 +31,7 @@ class Person extends DClass<Person> {
   state?: string
   age!: number
 
-  constructor(params: DClassParams<Person>) {
+  constructor(params: DClassMembers<Person>) {
     super(parsers);
     this.assign(params);
   }
@@ -47,12 +47,12 @@ const expectedParams = {
 describe('DClass constructor tests', () => {
   it('should instantiate a class when all params are provided', () => {
     const person = new Person(correctParams);
-    expect(person).to.contain(expectedParams);
+    expect(person.equals(expectedParams)).to.eq(true);
   });
 
   it('should correctly use defaults', () => {
     const person = new Person({ ...correctParams, employer: undefined });
-    expect(person).to.contain({ ...expectedParams, employer: 'unknown' });
+    expect(person.equals({ ...expectedParams, employer: 'unknown' })).to.eq(true);
   });
 
   it('should correctly throw an error if no default is provided', () => {
@@ -76,21 +76,21 @@ describe('DClass copyWith tests', () => {
 
   it('should make a copy of a class if no copyWith params provided', () => {
     const newPerson = person.copyWith({});
-    expect(newPerson).to.include(person);
-    expect(person).to.include(person);
+    expect(newPerson.equals((person))).eq(true);
+    expect(person.equals((person))).to.eq(true);
   });
 
   it('should make a copy of a class with new params', () => {
     const newPerson = person.copyWith({ lastName: 'new ls' });
-    expect(newPerson).to.include({ ...person, lastName: 'new ls' });
-    expect(person).to.include(person);
-    expect(person).to.include(person);
+    expect(newPerson.equals(({ ...person, lastName: 'new ls' }))).to.eq(true);
+    expect(person.equals((person))).to.eq(true);
+    expect(person.equals((person))).to.eq(true);
   });
 
   it('should make a copy of a class with defaults if undefined passed in', () => {
     const newPerson = person.copyWith({ lastName: undefined });
-    expect(newPerson).to.include({ ...person, lastName: 'unknown' });
-    expect(person).to.include(person);
+    expect(newPerson.equals(({ ...person, lastName: 'unknown' }))).to.eq(true);
+    expect(person.equals((person))).to.eq(true);
   });
 
   it('should throw if required value is explicitly undefined', () => {
@@ -112,7 +112,7 @@ describe('DClass parse tests', () => {
       ...correctParams, ...badValues,
     });
 
-    expect(person).to.include({ ...expectedParams });
+    expect(person.equals(expectedParams)).to.eq(true);
     expect(person).to.not.include(badValues);
   });
 
@@ -136,7 +136,7 @@ describe('DClass tryParse tests', () => {
       ...correctParams, ...badValues,
     });
 
-    expect(person).to.include({ ...expectedParams });
+    expect(person.equals(({ ...expectedParams }))).to.eq(true);
     expect(person).to.not.include(badValues);
   });
 
@@ -150,5 +150,37 @@ describe('DClass tryParse tests', () => {
     expect(Person.tryParse(null)).to.eq(undefined);
     expect(Person.tryParse(4)).to.eq(undefined);
     expect(Person.tryParse('hello')).to.eq(undefined);
+  });
+});
+
+describe('DClass equals tests', () => {
+  const person = new Person(correctParams);
+  const personParams = { ...person };
+
+  it('should return true as long as members match', () => {
+    expect(person.equals(personParams)).to.eq(true);
+  });
+
+  it('should return true even if nullable value is missing', () => {
+    const p1 = person.copyWith({ state: undefined });
+    const members = { ...p1 };
+    delete members.state;
+    expect(p1.equals(members)).to.eq(true);
+  });
+
+  it('should return false if members dont match', () => {
+    expect(person.equals({ ...personParams, firstName: 'bambi' })).to.eq(false);
+  });
+
+  it("should return false if passed-in value doesn't have expected members", () => {
+    expect(person.equals({ })).to.eq(false);
+  });
+
+  it('should return false if passed-in value is of irrelevant type', () => {
+    expect(person.equals(null)).to.eq(false);
+    expect(person.equals(undefined)).to.eq(false);
+    expect(person.equals(false)).to.eq(false);
+    expect(person.equals(4)).to.eq(false);
+    expect(person.equals('43')).to.eq(false);
   });
 });
