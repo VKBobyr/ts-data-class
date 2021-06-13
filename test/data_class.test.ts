@@ -128,3 +128,27 @@ describe('DClass parse tests', () => {
     expect(() => Person.parse('hello')).to.throw();
   });
 });
+
+describe('DClass tryParse tests', () => {
+  it('should not include values that arent defined in the parser and use defaults', () => {
+    const badValues = { dog: 'molly', cat: 'jack' };
+    const person = Person.tryParse({
+      ...correctParams, ...badValues,
+    });
+
+    expect(person).to.include({ ...expectedParams });
+    expect(person).to.not.include(badValues);
+  });
+
+  it('should return undefined if default not provided for a missing value', () => {
+    // missing firstName
+    expect(Person.tryParse({ lastName: 'l', age: 42, employer: 'john' })).to.eq(undefined);
+  });
+
+  it('should return undefined if params is not an object', () => {
+    expect(Person.tryParse(undefined)).to.eq(undefined);
+    expect(Person.tryParse(null)).to.eq(undefined);
+    expect(Person.tryParse(4)).to.eq(undefined);
+    expect(Person.tryParse('hello')).to.eq(undefined);
+  });
+});

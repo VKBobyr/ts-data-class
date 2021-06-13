@@ -25,7 +25,12 @@ export default abstract class DClass<T extends DClass<T>> {
     this.constructor.parsers = parsers;
   }
 
-  assign(params: DClassMembers<T>) {
+  /**
+   * Called only in the constructor; assigns parameters in the class
+   *
+   * @param params - params to assign
+   */
+  protected assign(params: DClassMembers<T>) {
     // @ts-ignore
     if (this.constructor.parsers === undefined) throw new ParsersNotFoundError(this);
 
@@ -35,6 +40,14 @@ export default abstract class DClass<T extends DClass<T>> {
     Object.freeze(this);
   }
 
+  /**
+   * Copies the current instance, replacing specified parameters.
+   * Parsers are applied to the passed in fields with behavior
+   * identical to the constructor
+   *
+   * @param params - params with which to try to copy the instance
+   * @returns an instance of T
+   */
   copyWith(params: Partial<DClassMembers<T>>): T {
     DClass.assertIsObject(params);
     // @ts-ignore
@@ -46,9 +59,32 @@ export default abstract class DClass<T extends DClass<T>> {
     throw new BadParamsError(params);
   }
 
-  static parse<F extends DClass<F>>(this: DClassConstructor<F>, params: any) {
+  /**
+   * Parses params of any type. Usually used on uncontrolled data or API calls.
+   *
+   * @param params - params with which to try to create a class
+   * @throws `BadParamsError` if params are not an object
+   * @throws `KeyParsingError` if fails to parse a key
+   * @returns an instance of T
+   */
+  static parse<F extends DClass<F>>(this: DClassConstructor<F>, params: any) : F {
     DClass.assertIsObject(params);
     return new this(params);
+  }
+
+  /**
+   * Parses params of any type. Usually used on uncontrolled data or API calls.
+   * If an exception is thrown during parsing, returns undefined.
+   *
+   * @param params - params with which to try to create a class
+   * @returns an instance of T | undefined
+   */
+  static tryParse<F extends DClass<F>>(this: DClassConstructor<F>, params: any) : F | undefined {
+    try {
+      return new this(params);
+    } catch {
+      return undefined;
+    }
   }
 
   protected static parseParams<P extends DClass<P>>(
@@ -82,9 +118,5 @@ export default abstract class DClass<T extends DClass<T>> {
     });
 
     return out;
-  }
-
-  static setParsers<F extends DClass<F>>(this: DClassConstructor<F>, parsers: DClassParsers<F>) {
-    Object.getPrototypeOf(this).parsers = parsers;
   }
 }
