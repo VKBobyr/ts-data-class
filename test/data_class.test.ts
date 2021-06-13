@@ -51,10 +51,6 @@ const getParamsWithNoDefault = () => ({
   ...getCorrectParams(), firstName: undefined,
 });
 
-const getRandomParams = () => ({
-  dog: 'jacky', cat: 'Mittens',
-});
-
 describe('DClass constructor', () => {
   it('should instantiate a class when all params are provided', () => {
     const person = new Person(getCorrectParams());
