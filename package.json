@@ -1,10 +1,13 @@
 {
   "name": "ts-data-class",
   "description": "Data Classes for Typescript",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "repository": {
+    "url": "https://github.com/VKBobyr/ts-data-class"
+  },
   "keywords": [
     "ts",
     "typescript",
