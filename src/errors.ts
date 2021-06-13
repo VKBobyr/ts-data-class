@@ -1,7 +1,13 @@
 /* eslint-disable max-classes-per-file */
-export class ParsingError extends Error {
+export class KeyParsingError extends Error {
   constructor(key: string = '', info: string = '') {
     super(`[Parsing Error] Unable to parse the key '${key}' - ${info}`);
+  }
+}
+
+export class BadParamsError extends Error {
+  constructor(params: unknown) {
+    super(`Expected params to be an object -- got: '${params}' of type ${typeof params}`);
   }
 }
 

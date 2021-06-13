@@ -1,4 +1,4 @@
-import { ParsersNotFoundError } from './errors';
+import { BadParamsError, ParsersNotFoundError } from './errors';
 import { Parser } from './parsers/parsers';
 
 // eslint-disable-next-line no-unused-vars
@@ -29,17 +29,25 @@ export default abstract class DClass<T extends DClass<T>> {
     // @ts-ignore
     if (this.constructor.parsers === undefined) throw new ParsersNotFoundError(this);
 
+    DClass.assertIsObject(params);
     // @ts-ignore
     Object.assign(this, DClass.parseParams({}, params, this.constructor.parsers));
     Object.freeze(this);
   }
 
   copyWith(params: Partial<DClassMembers<T>>): T {
+    DClass.assertIsObject(params);
     // @ts-ignore
     return this.instantiate({ ...this, ...params });
   }
 
+  private static assertIsObject(params: unknown) {
+    if (typeof params === 'object' && !!params) return;
+    throw new BadParamsError(params);
+  }
+
   static parse<F extends DClass<F>>(this: DClassConstructor<F>, params: any) {
+    DClass.assertIsObject(params);
     return new this(params);
   }
 

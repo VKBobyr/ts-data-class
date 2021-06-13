@@ -58,6 +58,13 @@ describe('DClass constructor tests', () => {
   it('should correctly throw an error if no default is provided', () => {
     expect(() => new Person({ ...correctParams, firstName: undefined })).to.throw();
   });
+
+  it('should throw if params is not an object', () => {
+    expect(() => new Person(undefined)).to.throw();
+    expect(() => new Person(null)).to.throw();
+    expect(() => new Person(4)).to.throw();
+    expect(() => new Person('hello')).to.throw();
+  });
 });
 
 describe('DClass copyWith tests', () => {
@@ -89,6 +96,13 @@ describe('DClass copyWith tests', () => {
   it('should throw if required value is explicitly undefined', () => {
     expect(() => person.copyWith({ firstName: undefined })).to.throw();
   });
+
+  it('should throw if params does not extend object', () => {
+    expect(() => person.copyWith(undefined)).to.throw();
+    expect(() => person.copyWith(null)).to.throw();
+    expect(() => person.copyWith(4)).to.throw();
+    expect(() => person.copyWith('hello')).to.throw();
+  });
 });
 
 describe('DClass parse tests', () => {
@@ -105,5 +119,12 @@ describe('DClass parse tests', () => {
   it('should throw if default not provided for a missing value', () => {
     // missing firstName
     expect(() => Person.parse({ lastName: 'l', age: 42, employer: 'john' })).to.throw();
+  });
+
+  it('should throw if params is not an object', () => {
+    expect(() => Person.parse(undefined)).to.throw();
+    expect(() => Person.parse(null)).to.throw();
+    expect(() => Person.parse(4)).to.throw();
+    expect(() => Person.parse('hello')).to.throw();
   });
 });
