@@ -12,9 +12,18 @@ yarn: `yarn add ts-data-class`
 
 ## Usage
 
-### Define a Class
+### Setup
 
-Define a class `T` extending `DClass<T>` that accepts `DClassParams<T>` and calls `super` with the map of parsers for each field:
+1. Define a class `T` that extends `DClass<T>`
+2. Define class members, marking optional with `?:` and required with `!:`
+3. Write a `parsers` constant of type `DClassParsers<T>`. 
+   - This will define how each of the members is validated and parsed. 
+   - For each of the fields, define a function of type `(v: unknown) => T` or use one of the provided parsers like `Defined`, `NumberParser`, or `StringParser`
+4. Create a constructor that 
+   - Accepts `params: DClassMembers<T>`
+   - Calls `super(parsers)`
+   - Calls `this.assign(params)`
+##### Example:
 
 ```typescript
 const parsers: DClassParsers<Person> = {
@@ -41,18 +50,15 @@ class Person extends DClass<Person> {
   employer?: string // optional
   state?: string; // optional
 
+  // important!
   constructor(params: DClassMembers<Person>) {
-    super(parsers);
-    this.assign(params);
+    super(parsers); // sets parsers for the Person class
+    this.assign(params); // used to parse & set params 
   }
 }
 ```
 
-- Use `!:` for required parameters and `?:` for optional parameters.
-
-- Parsers are of the form `(v: unknown) => T`, but the package provides a few commonly used ones like `NumberParser` , `StringParser`, and `Defined`.
-
-- Most of the provided parsers also take modifiers which are applied to the field. Modifiers are of the form `(T) => T`.
+- Most of the provided parsers also take modifiers which are applied to the field *after* it's validated. You can use custom modifiers as long as they're of the form `(T) => T`
 
 - As long as `strict` is set to `true` in `tsconfig.json`, typescript will provide useful errors and warnings as to which parsers are missing and whether they result in expected types
 
