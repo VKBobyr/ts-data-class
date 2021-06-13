@@ -25,8 +25,8 @@ const cat1 = new Cat({ numLives: 8, name: 'Whiskers', breed: 'Bald' });
 console.log(cat1);
 // Cat { numLives: 8, breed: 'Bald', name: 'Whiskers', owner: undefined }
 
-const cat2 = cat1.copyWith({ name: 'Kitteh', breed: undefined, owner: 'Brad' });
+const cat2 = cat1.copy({ name: 'Kitteh', breed: undefined, owner: 'Brad' });
 console.log(cat2);
 // Cat { numLives: 8, breed: 'stray', name: 'Kitteh', owner: 'Brad' }
 
-const cat3 = cat2.copyWith();
+const cat3 = cat2.copy();

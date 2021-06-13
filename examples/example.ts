@@ -59,7 +59,7 @@ console.log(person);
   }
  */
 
-const employedPerson = person.copyWith({
+const employedPerson = person.copy({
   employer: 'self',
   lastName: undefined,
   state: 'Alaska',

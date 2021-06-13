@@ -1,8 +1,13 @@
 # TS Data-Class
 
-This package aims to simplify and secure data parsing, manipulation, and validation in typescript by providing auto-generated constructors, `copyWith`,  `parse`, and parsing utilities with **minimal** boilerplate and full intellisence support.
+This package aims to simplify and secure data parsing, manipulation, and validation in typescript by providing auto-generated constructors, helper methods, and parsing utilities with **minimal** boilerplate and full intellisence support.
 
+Every instance of the data class will automatically have:
 
+- A typed constructor
+- `copy` & `copyDeep`
+- `parse` & `tryParse`
+- `equals`
 
 ## Installation
 
@@ -91,12 +96,12 @@ console.log(person);
 
 Typescript will suggest parameters and provide warnings if the types are wrong. Instantiating the object will also apply the parsers on each field (that we set in the constructor).
 
-### copyWith
+### copy
 
-`copyWith` works as it would in many other data-classes, copying only the provided fields:
+`copy` works as it would in many other data-classes, copying only the provided fields:
 
 ```typescript
-const employedPerson = person.copyWith({
+const employedPerson = person.copy({
   employer: 'self',
   lastName: undefined,
   state: 'Alaska',
@@ -113,6 +118,9 @@ console.log(employedPerson);
   }
  */
 ```
+
+It can also be used with no params to make a shallow copy.
+Alternatively `deepCopy` can be used to make a deep copy.
 
 ### parse
 
@@ -140,7 +148,7 @@ console.log(parsedPerson);
 */
 ```
 
-> If `Defined` is used with no fallback value, and the input is `undefined`, then `parse`, `copyWith`, and the constructor will throw a `ParsingError` when they assert that the field is defined
+> If `Defined` is used with no fallback value, and the input is `undefined`, then `parse`, `copy`, and the constructor will throw a `ParsingError` when they assert that the field is defined
 
 ### tryParse
 

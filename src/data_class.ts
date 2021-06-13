@@ -1,3 +1,5 @@
+import clone from 'lodash.clone';
+import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import isUndefined from 'lodash.isundefined';
 import omitBy from 'lodash.omitby';
@@ -65,10 +67,30 @@ export default abstract class DClass<T extends DClass<T>> {
    * @param params - params with which to try to copy the instance
    * @returns an instance of T
    */
-  copyWith(params: Partial<DClassMembers<T>>): T {
+  copy(params?: Partial<DClassMembers<T>>): T {
+    // @ts-ignore
+    if (params === undefined) return clone(this);
+
     DClass.assertIsObject(params);
     // @ts-ignore
     return this.instantiate({ ...this, ...params });
+  }
+
+  /**
+   * Deep-copies the current instance, replacing specified parameters.
+   * Parsers are applied to the passed in fields with behavior
+   * identical to the constructor
+   *
+   * @param params - params with which to try to copy the instance
+   * @returns an instance of T
+   */
+  deepCopy(params?: Partial<DClassMembers<T>>): T {
+    // @ts-ignore
+    if (params === undefined) return cloneDeep(this);
+
+    DClass.assertIsObject(params);
+    // @ts-ignore
+    return this.instantiate({ ...cloneDeep(this), ...params });
   }
 
   private static assertIsObject(params: unknown) {
@@ -108,9 +130,6 @@ export default abstract class DClass<T extends DClass<T>> {
    * Checks whether this DClass is equal to any other object.
    * Expects another DClass, but safe to use any other type of object.
    * If an exception is thrown during evaluation, returns false.
-   *
-   * @param params - params with which to try to create a class
-   * @returns an instance of T | undefined
    */
   equals(dc: DClassMembers<T> | undefined) : boolean {
     // @ts-ignore
@@ -121,9 +140,6 @@ export default abstract class DClass<T extends DClass<T>> {
    * Checks whether two DClasses are equal.
    * Expects two DClasses, but safe to use any other type of object.
    * If an exception is thrown during evaluation, returns false.
-   *
-   * @param params - params with which to try to create a class
-   * @returns an instance of T | undefined
    */
   static equal<F extends DClassMembers<F>>(dc1: F | undefined, dc2: F | undefined): boolean {
     const m1 = omitBy({ ...dc1 }, isUndefined);
