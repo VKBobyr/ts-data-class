@@ -141,3 +141,15 @@ console.log(parsedPerson);
 ```
 
 > If `Defined` is used with no fallback value, and the input is `undefined`, then `parse`, `copyWith`, and the constructor will throw a `ParsingError` when they assert that the field is defined
+
+### tryParse
+
+Similar to parse, but returns `undefined` if *any* exception is thrown during parsing
+
+```typescript
+const p1 = Person.tryParse(undefined);
+console.log(p1); // undefined
+
+const p2 = Person.parse({}); // firstName assertion fails
+console.log(p2); // undefined
+```
