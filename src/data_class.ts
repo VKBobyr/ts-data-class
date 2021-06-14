@@ -10,6 +10,7 @@ import { FunctionNames } from './utility_types';
 // eslint-disable-next-line no-unused-vars
 type DTConstructor<T extends DTClass<T>> = { new(params: DTMembers<T>): T }
 export type DTMembers<T = any> = Pick<T, Exclude<keyof T, keyof DTClass<any> | FunctionNames<T>>>
+export type DTParams<T = any> = DTMembers<T>
 
 export type DTParsers<T extends DTClass<T>> = {
   // eslint-disable-next-line no-unused-vars
