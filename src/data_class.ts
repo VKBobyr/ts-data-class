@@ -5,10 +5,11 @@ import isUndefined from 'lodash.isundefined';
 import omitBy from 'lodash.omitby';
 import { BadParamsError, ParsersNotFoundError } from './errors';
 import { Parser } from './parsers/parsers';
+import { FunctionNames } from './utility_types';
 
 // eslint-disable-next-line no-unused-vars
 type DClassConstructor<T extends DClass<T>> = { new(params: DClassMembers<T>): T }
-export type DClassMembers<T = any> = Pick<T, Exclude<keyof T, keyof DClass<any>>>
+export type DClassMembers<T = any> = Pick<T, Exclude<keyof T, keyof DClass<any> | FunctionNames<T>>>
 
 export type DClassParsers<T extends DClass<T>> = {
   // eslint-disable-next-line no-unused-vars
