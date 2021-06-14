@@ -38,6 +38,10 @@ class Person extends DClass<Person> {
     super(parsers);
     this.assign(params);
   }
+
+  introduceThyself() {
+    console.log(`My name is ${this.firstName}`);
+  }
 }
 
 const person = new Person({

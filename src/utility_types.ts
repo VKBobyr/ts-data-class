@@ -7,3 +7,7 @@ export type Constructor<T, P=any> = { new(...v: P[]): T}
 export type FunctionNames<T> = {
   [K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
+
+export type NonFunctionNames<T> = {
+  [K in keyof T]: T[K] extends Function ? never : K;
+}[keyof T];

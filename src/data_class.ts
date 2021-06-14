@@ -21,6 +21,7 @@ export default abstract class DClass<T extends DClass<T>> {
   static parsers: DClassParsers<any>
 
   static get keys(): (keyof DClassMembers)[] {
+    // @ts-ignore
     return Object.keys(this.parsers);
   }
 
