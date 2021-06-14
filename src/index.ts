@@ -5,6 +5,7 @@ import Defined from './parsers/defined';
 import DefinedLazy from './parsers/defined_lazy';
 import NumberParser, { NumberMods } from './parsers/number_parser';
 import StringParser, { StringMods } from './parsers/string_parser';
+import OneOf from './parsers/one_of';
 
 export default DTClass;
 export {
@@ -13,6 +14,7 @@ export {
   Defined,
   DefinedLazy,
   ParseOrEmpty,
+  OneOf,
   StringMods,
   NumberMods,
   BoolParser,
