@@ -214,6 +214,29 @@ describe('DTClass parsing', () => {
       expect(Person.tryParse('hello')).to.eq(undefined);
     });
   });
+
+  describe('tryCreate', () => {
+    it('should not include values that arent defined in the parser and use defaults', () => {
+      const person = Person.tryCreate({
+        ...getCorrectParams(), ...getUnrelatedValues(),
+      });
+
+      expect(person.equals(getExpectedParams())).to.eq(true);
+      expect(person).to.not.include(getUnrelatedValues());
+    });
+
+    it('should return undefined if default not provided for a missing value', () => {
+      // missing firstName
+      expect(Person.tryCreate({ lastName: 'l', age: 42, employer: 'john' })).to.eq(undefined);
+    });
+
+    it('should return undefined if params is not an object', () => {
+      expect(Person.tryCreate(undefined)).to.eq(undefined);
+      expect(Person.tryCreate(null)).to.eq(undefined);
+      expect(Person.tryCreate(4)).to.eq(undefined);
+      expect(Person.tryCreate('hello')).to.eq(undefined);
+    });
+  });
 });
 
 describe('DTClass equals', () => {

@@ -142,6 +142,19 @@ export default abstract class DTClass<T extends DTClass<T>> {
   }
 
   /**
+   * tryParse alternative with intellisense
+   *
+   * @param params - params with which to try to create a class
+   * @returns an instance of T | undefined
+   */
+  static tryCreate<F extends DTClass<F>>(
+    this: DTConstructor<F>, params: DTParams<F>,
+  ): F | undefined {
+    // @ts-ignore
+    return this.tryParse<F>(params);
+  }
+
+  /**
    * Checks whether this DTClass is equal to any other object.
    * Expects another DTClass, but safe to use any other type of object.
    * If an exception is thrown during evaluation, returns false.
