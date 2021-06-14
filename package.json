@@ -1,7 +1,7 @@
 {
   "name": "ts-data-class",
   "description": "Data Classes for Typescript",
-  "version": "0.5.6",
+  "version": "0.6.0",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -23,7 +23,8 @@
     "parsing",
     "validation",
     "record",
-    "dclass"
+    "DTClass",
+    "DClass"
   ],
   "scripts": {
     "test": "ts-mocha 'test/**/*.ts' --recursive --timeout 60000 --exit",

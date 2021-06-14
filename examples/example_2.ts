@@ -1,32 +1,73 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
-import DClass, { DClassMembers, DClassParsers } from '../src';
+import DTClass, {
+  DTMembers, DTParsers, Defined, NumberParser, ParseOrEmpty, StringParser,
+} from '../src';
 
-const parsers: DClassParsers<Cat> = {
+const ownerParsers: DTParsers<Owner> = {
+  name: Defined(StringParser({}), 'unknown name'),
+  age: Defined(NumberParser({}), -1),
+};
+
+class Owner extends DTClass<Owner> {
+  name!: string
+  age?: number
+
+  constructor(params: DTMembers<Owner>) {
+    super(ownerParsers);
+    this.assign(params);
+  }
+}
+
+const parsers: DTParsers<Cat> = {
   numLives: (v) => (typeof v === 'number' ? v : 9),
   breed: (v) => ((typeof v === 'string') ? v : 'stray'),
   name: (v) => (typeof v === 'string' ? v : undefined),
-  owner: (v) => (typeof v === 'string' ? v : undefined),
+  owner: ParseOrEmpty(Owner),
 };
 
-class Cat extends DClass<Cat> {
+class Cat extends DTClass<Cat> {
   numLives!: number // required
   breed!: string // required
   name?: string // optional
-  owner?: string; // optional
+  owner!: Owner; // required
 
-  constructor(params: DClassMembers<Cat>) {
+  constructor(params: DTMembers<Cat>) {
     super(parsers);
     this.assign(params);
   }
 }
 
-const cat1 = new Cat({ numLives: 8, name: 'Whiskers', breed: 'Bald' });
+const cat1 = new Cat({
+  numLives: 8,
+  name: 'Whiskers',
+  breed: 'Bald',
+  owner: new Owner({ name: 'jack', age: 2 }),
+});
 console.log(cat1);
-// Cat { numLives: 8, breed: 'Bald', name: 'Whiskers', owner: undefined }
+/**
+  Cat {
+    numLives: 8,
+    breed: 'Bald',
+    name: 'Whiskers',
+    owner: Owner { name: 'jack', age: 2 }
+  }
+ */
 
-const cat2 = cat1.copy({ name: 'Kitteh', breed: undefined, owner: 'Brad' });
+const cat2 = cat1.copy({
+  name: 'Kitteh',
+  breed: undefined,
+  owner: undefined,
+});
 console.log(cat2);
-// Cat { numLives: 8, breed: 'stray', name: 'Kitteh', owner: 'Brad' }
+/**
+  Cat {
+    numLives: 8,
+    breed: 'stray',
+    name: 'Kitteh',
+    owner: Owner { name: 'unknown name', age: -1 }
+  }
+*/
 
 const cat3 = cat2.copy();

@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /usr/local/bin/yarn add lodash.clone lodash.cloneDeep
+  /usr/local/bin/node /usr/local/bin/yarn test
 
 PATH: 
   /usr/local/opt/llvm/bin:/opt/miniconda3/bin:/opt/miniconda3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/usr/local/go/bin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Wireshark.app/Contents/MacOS:/Users/vbobyr/Developer/flutter/bin:/Users/vbobyr/Developer/flutter/bin/cache/dart-sdk/bin
@@ -14,23 +14,18 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/lodash.cloneDeep: Not found
-      at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66988:18)
-      at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140662:22)
-      at Request.emit (events.js:315:20)
-      at Request.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141634:10)
-      at Request.emit (events.js:315:20)
-      at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141556:12)
-      at Object.onceWrapper (events.js:421:28)
-      at IncomingMessage.emit (events.js:327:22)
-      at endReadableNT (internal/streams/readable.js:1327:12)
-      at processTicksAndRejections (internal/process/task_queues.js:80:21)
+  SyntaxError: /Users/vbobyr/dev/projects/npm/ts-data-class/package.json: Unexpected token ] in JSON at position 510
+      at JSON.parse (<anonymous>)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/usr/local/lib/node_modules/yarn/lib/cli.js:310:30)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:321:13
 
 npm manifest: 
   {
     "name": "ts-data-class",
     "description": "Data Classes for Typescript",
-    "version": "0.4.5",
+    "version": "0.5.6",
     "license": "MIT",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -45,8 +40,15 @@ npm manifest:
       "data-class",
       "dataclass",
       "data class",
+      "copyWith",
       "copy",
-      "parsing"
+      "clone",
+      "cloneWith",
+      "parsing",
+      "validation",
+      "record",
+      "DTClass",
+      "dtclass",
     ],
     "scripts": {
       "test": "ts-mocha 'test/**/*.ts' --recursive --timeout 60000 --exit",
@@ -55,6 +57,8 @@ npm manifest:
     },
     "devDependencies": {
       "@types/chai": "4.2.11",
+      "@types/lodash.clone": "^4.5.6",
+      "@types/lodash.clonedeep": "^4.5.6",
       "@types/lodash.isequal": "^4.5.5",
       "@types/lodash.isundefined": "^3.0.6",
       "@types/lodash.omitby": "^4.6.6",
@@ -73,10 +77,16 @@ npm manifest:
       "typescript": "^4.3.2"
     },
     "dependencies": {
+      "lodash.clone": "^4.5.0",
+      "lodash.clonedeep": "^4.5.0",
       "lodash.isequal": "^4.5.0",
       "lodash.isundefined": "^3.0.1",
       "lodash.omitby": "^4.6.0"
-    }
+    },
+    "files": [
+      "lib",
+      "src"
+    ]
   }
 
 yarn manifest: 
@@ -179,6 +189,20 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
     integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
   
+  "@types/lodash.clone@^4.5.6":
+    version "4.5.6"
+    resolved "https://registry.yarnpkg.com/@types/lodash.clone/-/lodash.clone-4.5.6.tgz#967ee838bb0a9c3646a568b6d533b236afba0d43"
+    integrity sha512-cmwjyhyjvdWfTcuCmyjHzqxNv4yYGnlnpN24crxq8JwIKLtMI+ro0ScUcLSYo6wy8ToLczi6Sln0tqZntLganA==
+    dependencies:
+      "@types/lodash" "*"
+  
+  "@types/lodash.clonedeep@^4.5.6":
+    version "4.5.6"
+    resolved "https://registry.yarnpkg.com/@types/lodash.clonedeep/-/lodash.clonedeep-4.5.6.tgz#3b6c40a0affe0799a2ce823b440a6cf33571d32b"
+    integrity sha512-cE1jYr2dEg1wBImvXlNtp0xDoS79rfEdGozQVgliDZj1uERH4k+rmEMTudP9b4VQ8O6nRb5gPqft0QzEQGMQgA==
+    dependencies:
+      "@types/lodash" "*"
+  
   "@types/lodash.isequal@^4.5.5":
     version "4.5.5"
     resolved "https://registry.yarnpkg.com/@types/lodash.isequal/-/lodash.isequal-4.5.5.tgz#4fed1b1b00bef79e305de0352d797e9bb816c8ff"
@@ -190,13 +214,6 @@ Lockfile:
     version "3.0.6"
     resolved "https://registry.yarnpkg.com/@types/lodash.isundefined/-/lodash.isundefined-3.0.6.tgz#e8c9c4d81795671f6d8e734f649b9b7ad295d76d"
     integrity sha512-gXRrZ9MahWtxusjjUAbWaxUA4vU/NxXfI9kkfsjXYnBA0YjXVtl71toGBZ0X4+L023XS8NlO3BokLXFFuLtG/Q==
-    dependencies:
-      "@types/lodash" "*"
-  
-  "@types/lodash.omit@^4.5.6":
-    version "4.5.6"
-    resolved "https://registry.yarnpkg.com/@types/lodash.omit/-/lodash.omit-4.5.6.tgz#f2a9518259e481a48ff7ec423420fa8fd58933e2"
-    integrity sha512-KXPpOSNX2h0DAG2w7ajpk7TXvWF28ZHs5nJhOJyP0BQHkehgr948RVsToItMme6oi0XJkp19CbuNXkIX8FiBlQ==
     dependencies:
       "@types/lodash" "*"
   
@@ -1347,6 +1364,11 @@ Lockfile:
       p-locate "^3.0.0"
       path-exists "^3.0.0"
   
+  lodash.clone@^4.5.0:
+    version "4.5.0"
+    resolved "https://registry.yarnpkg.com/lodash.clone/-/lodash.clone-4.5.0.tgz#195870450f5a13192478df4bc3d23d2dea1907b6"
+    integrity sha1-GVhwRQ9aExkkeN9Lw9I9LeoZB7Y=
+  
   lodash.clonedeep@^4.5.0:
     version "4.5.0"
     resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
@@ -1366,11 +1388,6 @@ Lockfile:
     version "4.6.2"
     resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
     integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
-  
-  lodash.omit@^4.5.0:
-    version "4.5.0"
-    resolved "https://registry.yarnpkg.com/lodash.omit/-/lodash.omit-4.5.0.tgz#6eb19ae5a1ee1dd9df0b969e66ce0b7fa30b5e60"
-    integrity sha1-brGa5aHuHdnfC5aeZs4Lf6MLXmA=
   
   lodash.omitby@^4.6.0:
     version "4.6.0"

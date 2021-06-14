@@ -1,10 +1,10 @@
-import DClass, {
-  DClassMembers,
-  DClassParsers,
+import DTClass, {
+  DTMembers,
+  DTParsers,
   Defined, NumberMods, NumberParser, StringMods, StringParser,
 } from '../src';
 
-const parsers: DClassParsers<Person> = {
+const parsers: DTParsers<Person> = {
   age: Defined(
     NumberParser({
       modifiers: [
@@ -26,7 +26,7 @@ const parsers: DClassParsers<Person> = {
   employer: Defined(StringParser({}), 'unknown'),
 };
 
-class Person extends DClass<Person> {
+class Person extends DTClass<Person> {
   firstName!: string // required
   lastName!: string // required
   age!: number // required
@@ -34,7 +34,7 @@ class Person extends DClass<Person> {
   employer?: string // optional
   state?: string; // optional
 
-  constructor(params: DClassMembers<Person>) {
+  constructor(params: DTMembers<Person>) {
     super(parsers);
     this.assign(params);
   }

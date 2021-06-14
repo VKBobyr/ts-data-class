@@ -1,13 +1,13 @@
 // eslint-disable-next-line max-classes-per-file
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
-import DClass, {
-  DClassMembers,
-  DClassParsers,
+import DTClass, {
+  DTMembers,
+  DTParsers,
   Defined, DefinedLazy, NumberMods, NumberParser, StringMods, StringParser,
 } from '../src';
 
-const parsers: DClassParsers<Person> = {
+const parsers: DTParsers<Person> = {
   age: Defined(
     NumberParser({
       modifiers: [
@@ -24,7 +24,7 @@ const parsers: DClassParsers<Person> = {
   inventory: (v) => (Array.isArray(v) ? v : undefined),
 };
 
-class Person extends DClass<Person> {
+class Person extends DTClass<Person> {
   firstName!: string
   lastName!: string
   middleName?: string
@@ -33,7 +33,7 @@ class Person extends DClass<Person> {
   age!: number
   inventory?: string[]
 
-  constructor(params: DClassMembers<Person>) {
+  constructor(params: DTMembers<Person>) {
     super(parsers);
     this.assign(params);
   }
@@ -51,7 +51,7 @@ const getParamsWithNoDefault = () => ({
   ...getCorrectParams(), firstName: undefined,
 });
 
-describe('DClass constructor', () => {
+describe('DTClass constructor', () => {
   it('should instantiate a class when all params are provided', () => {
     const person = new Person(getCorrectParams());
     expect(person.equals(getExpectedParams())).to.eq(true);
@@ -74,8 +74,8 @@ describe('DClass constructor', () => {
   });
 });
 
-describe('DClass copies', () => {
-  const copyParams: Partial<DClassMembers<Person>> = {
+describe('DTClass copies', () => {
+  const copyParams: Partial<DTMembers<Person>> = {
     firstName: 'drake',
     state: 'Washington',
   };
@@ -166,7 +166,7 @@ describe('DClass copies', () => {
     });
   });
 });
-describe('DClass parsing', () => {
+describe('DTClass parsing', () => {
   const getUnrelatedValues = () => ({ dog: 'molly', cat: 'jack' });
 
   describe('parse', () => {
@@ -216,7 +216,7 @@ describe('DClass parsing', () => {
   });
 });
 
-describe('DClass equals', () => {
+describe('DTClass equals', () => {
   const person = new Person(getCorrectParams());
   const personParams = { ...person };
 
@@ -248,17 +248,17 @@ describe('DClass equals', () => {
   });
 });
 
-describe('DClass empty', () => {
-  const smolParsers: DClassParsers<SmolPerson> = {
+describe('DTClass empty', () => {
+  const smolParsers: DTParsers<SmolPerson> = {
     name: Defined(StringParser({}), 'default name'),
     age: NumberParser({}),
   };
 
-  class SmolPerson extends DClass<SmolPerson> {
+  class SmolPerson extends DTClass<SmolPerson> {
     name: string
     age?: number | undefined
 
-    constructor(params: DClassMembers<SmolPerson>) {
+    constructor(params: DTMembers<SmolPerson>) {
       super(smolParsers);
       this.assign(params);
     }

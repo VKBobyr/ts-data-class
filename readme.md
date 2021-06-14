@@ -19,19 +19,19 @@ yarn: `yarn add ts-data-class`
 
 ### Setup
 
-1. Define a class `T` that extends `DClass<T>`
+1. Define a class `T` that extends `DTClass<T>`
 2. Define class members, marking optional with `?:` and required with `!:`
-3. Write a `parsers` constant of type `DClassParsers<T>`. 
+3. Write a `parsers` constant of type `DTParsers<T>`. 
    - This will define how each of the members is validated and parsed. 
    - For each of the fields, define a function of type `(v: unknown) => T` or use one of the provided parsers like `Defined`, `NumberParser`, or `StringParser`
 4. Create a constructor that 
-   - Accepts `params: DClassMembers<T>`
+   - Accepts `params: DTMembers<T>`
    - Calls `super(parsers)`
    - Calls `this.assign(params)`
 ##### Example:
 
 ```typescript
-const parsers: DClassParsers<Person> = {
+const parsers: DTParsers<Person> = {
   age: Defined(
     NumberParser({
       modifiers: [
@@ -47,7 +47,7 @@ const parsers: DClassParsers<Person> = {
   employer: Defined(StringParser({}), 'unknown'),
 };
 
-class Person extends DClass<Person> {
+class Person extends DTClass<Person> {
   firstName!: string // required
   lastName!: string // required
   age!: number // required
@@ -56,7 +56,7 @@ class Person extends DClass<Person> {
   state?: string; // optional
 
   // important!
-  constructor(params: DClassMembers<Person>) {
+  constructor(params: DTMembers<Person>) {
     super(parsers); // sets parsers for the Person class
     this.assign(params); // used to parse & set params 
   }
@@ -164,7 +164,7 @@ console.log(p2); // undefined
 
 ### equal / equals
 
-You can also check equality of two `DClass`es:
+You can also check equality of two `DTClass`es:
 
 ```typescript
 person.equals({...person}) // true
