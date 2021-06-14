@@ -4,7 +4,7 @@ import { describe, it, beforeEach } from 'mocha';
 import DClass, {
   DClassMembers,
   DClassParsers,
-  Defined, NumberMods, NumberParser, StringMods, StringParser,
+  Defined, DefinedLazy, NumberMods, NumberParser, StringMods, StringParser,
 } from '../src';
 
 const parsers: DClassParsers<Person> = {
@@ -18,7 +18,7 @@ const parsers: DClassParsers<Person> = {
   ),
   state: StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] }),
   firstName: Defined(StringParser({})),
-  lastName: Defined(StringParser({}), 'unknown'),
+  lastName: DefinedLazy(StringParser({}), () => 'unknown'),
   middleName: StringParser({}),
   employer: Defined(StringParser({}), 'unknown'),
   inventory: (v) => (Array.isArray(v) ? v : undefined),
