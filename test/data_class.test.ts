@@ -1,6 +1,7 @@
 // eslint-disable-next-line max-classes-per-file
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
+import isEqual from 'lodash.isequal';
 import DTClass, {
   DTMembers,
   DTParsers,
@@ -325,6 +326,10 @@ describe('DTClass validations', () => {
     }
   }
 
+  const errRequired = 'Required';
+  const errNumMax = 'Must be at most 3.';
+  const errStrMax = 'Must be at most 3 characters long.';
+
   const validCat = new Cat({
     breed: 'Breedy McBreed',
     name: 'Ace',
@@ -334,7 +339,7 @@ describe('DTClass validations', () => {
   const invalidCat1 = new Cat({
     breed: 'Breedy McBreed',
     name: 'Acer', // too long
-    age: 3,
+    // missing age
   });
 
   const invalidCat2 = new Cat({
@@ -356,28 +361,29 @@ describe('DTClass validations', () => {
   });
 
   it('should return whats invalid about an object key', () => {
-    expect(validCat.validate('name')).to.eq(undefined);
-    expect(validCat.validate('age')).to.eq(undefined);
+    expect(validCat.validateMember('name')).to.eq(undefined);
+    expect(validCat.validateMember('age')).to.eq(undefined);
 
-    expect(invalidCat1.validate('name')).to.include('at most');
-    expect(invalidCat1.validate('age')).to.eq(undefined);
+    expect(invalidCat1.validateMember('name')).to.include('at most');
+    expect(invalidCat1.validateMember('age')).to.include('Required');
 
-    expect(invalidCat2.validate('age')).to.include('at most');
-    expect(invalidCat2.validate('name')).to.eq(undefined);
+    expect(invalidCat2.validateMember('age')).to.include('at most');
+    expect(invalidCat2.validateMember('name')).to.eq(undefined);
 
-    expect(invalidCat3.validate('age')).to.include('Required');
-    expect(invalidCat3.validate('name')).to.eq(undefined);
+    expect(invalidCat3.validateMember('age')).to.include('Required');
+    expect(invalidCat3.validateMember('name')).to.eq(undefined);
   });
 
   it('should return whats invalid about the object when key is not provided', () => {
     expect(validCat.validate()).to.eq(undefined);
-    expect(invalidCat2.validate()).to.include('at most');
-    expect(invalidCat1.validate()).to.include('at most');
+    expect(isEqual(invalidCat1.validate(), { name: errStrMax, age: errRequired })).to.eq(true);
+    expect(isEqual(invalidCat2.validate(), { age: errNumMax })).to.eq(true);
+    expect(isEqual(invalidCat3.validate(), { age: errRequired })).to.eq(true);
   });
 
   it('should throw an error if validation requested for a field with no validator', () => {
-    expect(() => validCat.validate('breed')).to.throw();
-    expect(() => invalidCat1.validate('breed')).to.throw();
-    expect(() => invalidCat2.validate('breed')).to.throw();
+    expect(() => validCat.validateMember('breed')).to.throw();
+    expect(() => invalidCat1.validateMember('breed')).to.throw();
+    expect(() => invalidCat2.validateMember('breed')).to.throw();
   });
 });

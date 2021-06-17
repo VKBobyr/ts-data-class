@@ -25,6 +25,8 @@ export type DTValidators<T extends DTClass<T>> = {
   [K in keyof DTMembers<T>]-?: Validator<T[K]> | null
 }
 
+type DTValidation<T> = Record<keyof DTMembers<T>, string | undefined>
+
 export type DTAdditionalConfig<T extends DTClass<T>> = {
   validators?: DTValidators<T>
 }
@@ -41,18 +43,6 @@ export default abstract class DTClass<T extends DTClass<T>> {
     return validators;
   }
 
-  private get validateAllFields() : string | undefined {
-    return this.keys.reduce<string | undefined>((error, key) => {
-      if (error !== undefined) return error;
-      const validator = this.validators[key];
-      if (!validator) return undefined;
-
-      // @ts-ignore
-      const validation = validator(this[key]);
-      return validation ? `${key}: ${validation}` : undefined;
-    }, undefined);
-  }
-
   /**
    * Returns true if object passes all validations
    * false otherwise
@@ -60,7 +50,26 @@ export default abstract class DTClass<T extends DTClass<T>> {
    * @throws ValidatorsNotFoundError if not set
    */
   get isValid(): boolean {
-    return !this.validateAllFields;
+    return this.validate() === undefined;
+  }
+
+  validate(): DTValidation<T> | undefined {
+    const allErrors = this.keys.reduce<DTValidation<T>>((errors, key) => {
+      const validator = this.validators[key];
+      if (!validator) return errors;
+
+      // @ts-ignore
+      const validation = validator(this[key]);
+      // eslint-disable-next-line no-param-reassign
+      if (validation) errors[key] = validation;
+
+      return errors;
+    // @ts-ignore
+    }, {});
+    if (Object.keys(allErrors).length === 0) return undefined;
+
+    // @ts-ignore
+    return allErrors;
   }
 
   /**
@@ -70,11 +79,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
    * @throws ValidatorsNotFoundError if not set
    * @throws ValidatorNotFoundForFieldError if not set for field
    */
-  validate(key?: keyof DTMembers<T>): string | undefined {
-    if (key === undefined) {
-      return this.validateAllFields;
-    }
-
+  validateMember(key: keyof DTMembers<T>): string | undefined {
     const validator = this.validators[key];
     // @ts-ignore
     if (!validator) throw new ValidatorNotFoundForFieldError(this, key);

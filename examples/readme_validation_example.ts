@@ -33,25 +33,25 @@ const cat = new Cat({
   name: 'Acer', // too long
 });
 
-console.log(cat.validate('breed')); // validator not found error
+// console.log(cat.validateMember('breed')); // validator not found error
 
-console.log(cat.validate('name')); // Must be at most 3 characters long.
-console.log(cat.validate('age')); // Required
-console.log(cat.validate()); // name: Must be at most 3 characters long.
+console.log(cat.validateMember('name')); // Must be at most 3 characters long.
+console.log(cat.validateMember('age')); // Required
+console.log(cat.validate()); // { name: 'Must be at most 3 characters long.', age: 'Required' }
 console.log(cat.isValid); // false
 
 const newCat = cat.copy({ name: 'Bob' });
-console.log(newCat.validate('name')); // undefined
-console.log(newCat.validate('age')); // Required
-console.log(newCat.validate()); // age: Required
+console.log(newCat.validateMember('name')); // undefined
+console.log(newCat.validateMember('age')); // Required
+console.log(newCat.validate()); // { age: 'Required' }
 console.log(newCat.isValid); // false
 
 const newerCat = newCat.copy({ age: 4 });
-console.log(newerCat.validate('age')); // Must be at most 3.
-console.log(newerCat.validate()); // age: Must be at most 3.
+console.log(newerCat.validateMember('age')); // Must be at most 3.
+console.log(newerCat.validate()); // { age: 'Must be at most 3.' }
 console.log(newerCat.isValid); // false
 
 const newestCat = newCat.copy({ age: 3 });
-console.log(newestCat.validate('age')); // undefined
+console.log(newestCat.validateMember('age')); // undefined
 console.log(newestCat.validate()); // undefined
 console.log(newestCat.isValid); // true
