@@ -3,9 +3,12 @@ import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import isUndefined from 'lodash.isundefined';
 import omitBy from 'lodash.omitby';
-import { BadParamsError, ParsersNotFoundError } from './errors';
+import {
+  BadParamsError, ParsersNotFoundError, ValidatorNotFoundForFieldError, ValidatorsNotFoundError,
+} from './errors';
 import { Parser } from './parsers/parsers';
 import { FunctionNames } from './utility_types';
+import { Validator } from './validators';
 
 // eslint-disable-next-line no-unused-vars
 type DTConstructor<T extends DTClass<T>> = { new(params: DTMembers<T>): T }
@@ -17,9 +20,66 @@ export type DTParsers<T extends DTClass<T>> = {
   [K in keyof DTMembers<T>]-?: (v: unknown) => T[K]
 }
 
+export type DTValidators<T extends DTClass<T>> = {
+  // eslint-disable-next-line no-unused-vars
+  [K in keyof DTMembers<T>]-?: Validator<T[K]> | null
+}
+
+export type DTAdditionalConfig<T extends DTClass<T>> = {
+  validators?: DTValidators<T>
+}
+
 /* eslint-disable no-unused-vars */
 export default abstract class DTClass<T extends DTClass<T>> {
   static parsers: DTParsers<any>
+  // static validators: DTValidators<any>
+
+  protected get validators(): DTValidators<T> {
+    // @ts-ignore
+    const { validators } = this.constructor;
+    if (validators === undefined) throw new ValidatorsNotFoundError(this);
+    return validators;
+  }
+
+  private get validateAllFields() : string | undefined {
+    return this.keys.reduce<string | undefined>((error, key) => {
+      if (error !== undefined) return error;
+      const validator = this.validators[key];
+      if (!validator) return undefined;
+
+      // @ts-ignore
+      return validator(this[key]);
+    }, undefined);
+  }
+
+  /**
+   * Returns true if object passes all validations
+   * false otherwise
+   *
+   * @throws ValidatorsNotFoundError if not set
+   */
+  get isValid() : boolean {
+    return !this.validateAllFields;
+  }
+
+  /**
+   * Returns validation error for the whole object if key not provided
+   * Returns validation for the field if key provided
+   *
+   * @throws ValidatorsNotFoundError if not set
+   * @throws ValidatorNotFoundForFieldError if not set for field
+   */
+  validate(key?: keyof DTMembers<T>): string | undefined {
+    if (key === undefined) {
+      return this.validateAllFields;
+    }
+
+    const validator = this.validators[key];
+    // @ts-ignore
+    if (!validator) throw new ValidatorNotFoundForFieldError(this, key);
+    // @ts-ignore
+    return validator(this[key]);
+  }
 
   static get keys(): (keyof DTMembers)[] {
     // @ts-ignore
@@ -42,9 +102,14 @@ export default abstract class DTClass<T extends DTClass<T>> {
     return new Constructor(args);
   }
 
-  constructor(parsers: DTParsers<T>) {
+  constructor(parsers: DTParsers<T>, params?: DTAdditionalConfig<T>) {
     // @ts-ignore
     this.constructor.parsers = parsers;
+
+    if (params) {
+      // @ts-ignore
+      this.constructor.validators = params.validators;
+    }
   }
 
   /**

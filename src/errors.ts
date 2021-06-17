@@ -17,3 +17,17 @@ export class ParsersNotFoundError extends Error {
     super(`Parsers not found for class '${className}'. Define parsers and a custom constructor for class '${className}' and call super(parsers).`);
   }
 }
+
+export class ValidatorsNotFoundError extends Error {
+  constructor(instance: any) {
+    const className = instance.constructor.name;
+    super(`Validators not found for class '${className}'. Define a validators variable of type DTValidators<T> and pass it into super: super(parsers, {validators: myValidators}).`);
+  }
+}
+
+export class ValidatorNotFoundForFieldError extends Error {
+  constructor(instance: any, field: string) {
+    const className = instance.constructor.name;
+    super(`Validator not found for member '${field}' of '${className}' instance.`);
+  }
+}

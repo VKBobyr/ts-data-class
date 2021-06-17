@@ -1,35 +1,48 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { validators } from '../src';
+import { Validators } from '../src';
 
-describe('validators', () => {
+describe('Validators', () => {
   describe('nonNullable', () => {
     const message = 'Required';
-    const validator = validators.nonNullable();
+    const emptyValidator = Validators.nonNullable();
 
     const customMessage = 'ERR';
-    const customValidator = validators.nonNullable(customMessage);
+    const emptyCustomValidator = Validators.nonNullable([], customMessage);
+
+    const stringValidator = Validators.nonNullable(
+      [Validators.strings.maxLen(3)],
+    );
 
     it('should return an error for a null or undefined value', () => {
-      expect(validator(null)).to.eq(message);
-      expect(validator(undefined)).to.eq(message);
+      expect(emptyValidator(null)).to.eq(message);
+      expect(emptyValidator(undefined)).to.eq(message);
     });
 
     it('should set custom value', () => {
-      expect(customValidator(null)).to.eq(customMessage);
-      expect(customValidator(undefined)).to.eq(customMessage);
+      expect(emptyCustomValidator(null)).to.eq(customMessage);
+      expect(emptyCustomValidator(undefined)).to.eq(customMessage);
     });
 
     it('should return undefined on a non-null value', () => {
-      expect(customValidator(0)).to.eq(undefined);
-      expect(customValidator(false)).to.eq(undefined);
-      expect(customValidator(42)).to.eq(undefined);
-      expect(customValidator('hello')).to.eq(undefined);
+      expect(emptyCustomValidator(0)).to.eq(undefined);
+      expect(emptyCustomValidator(false)).to.eq(undefined);
+      expect(emptyCustomValidator(42)).to.eq(undefined);
+      expect(emptyCustomValidator('hello')).to.eq(undefined);
+    });
+
+    it('should run non-null Validators', () => {
+      expect(stringValidator(undefined)).to.include(message);
+
+      expect(stringValidator('a')).to.eq(undefined);
+      expect(stringValidator('ab')).to.eq(undefined);
+      expect(stringValidator('abc')).to.eq(undefined);
+      expect(stringValidator('abcd')).to.include('at most');
     });
   });
 
   describe('stringMinLen', () => {
-    const validator = validators.stringMinLen(4);
+    const validator = Validators.strings.minLen(4);
 
     it('should return an error for short message', () => {
       expect(validator('abc')).to.not.eq(undefined);
@@ -47,7 +60,7 @@ describe('validators', () => {
   });
 
   describe('stringMaxLen', () => {
-    const validator = validators.stringMaxLen(4);
+    const validator = Validators.strings.maxLen(4);
 
     it('should return an error for messages that are too long', () => {
       expect(validator('abcde')).to.not.eq(undefined);
@@ -65,9 +78,9 @@ describe('validators', () => {
   });
 
   describe('multi', () => {
-    const validator = validators.multi([
-      validators.stringMinLen(3),
-      validators.stringMaxLen(5),
+    const validator = Validators.multi([
+      Validators.strings.minLen(3),
+      Validators.strings.maxLen(5),
     ]);
 
     it('should return an error for messages in the wrong range', () => {

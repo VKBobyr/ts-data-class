@@ -4,8 +4,9 @@ import { describe, it, beforeEach } from 'mocha';
 import DTClass, {
   DTMembers,
   DTParsers,
-  Defined, DefinedLazy, NumberMods, NumberParser, StringMods, StringParser,
+  Defined, DefinedLazy, NumberMods, NumberParser, StringMods, StringParser, DTParams, Validators,
 } from '../src';
+import { DTValidators } from '../src/data_class';
 
 const parsers: DTParsers<Person> = {
   age: Defined(
@@ -295,5 +296,77 @@ describe('DTClass empty', () => {
   it('should create an empty field with defaults and provided params', () => {
     const person = SmolPerson.empty({ age: 42 });
     expect(person.equals({ name: 'default name', age: 42 }));
+  });
+});
+
+describe('DTClass validations', () => {
+  const catParsers: DTParsers<Cat> = {
+    name: Defined(StringParser({})),
+    age: NumberParser({}),
+    breed: StringParser({}),
+  };
+
+  const catValidators: DTValidators<Cat> = {
+    name: Validators.strings.maxLen(3),
+    age: Validators.numbers.max(3),
+    breed: null,
+  };
+
+  class Cat extends DTClass<Cat> {
+    name: string
+    breed: string
+    age?: number
+
+    constructor(params: DTParams<Cat>) {
+      super(catParsers, { validators: catValidators });
+      this.assign(params);
+    }
+  }
+
+  const validCat = new Cat({
+    breed: 'Breedy McBreed',
+    name: 'Ace',
+    age: 3,
+  });
+
+  const invalidCat1 = new Cat({
+    breed: 'Breedy McBreed',
+    name: 'Acer', // too long
+    age: 3,
+  });
+
+  const invalidCat2 = new Cat({
+    breed: 'Breedy McBreed',
+    name: 'Ace',
+    age: 4, // too big
+  });
+
+  it('should return valid for valid objects and invalid for invalid', () => {
+    expect(validCat.isValid).to.eq(true);
+    expect(invalidCat1.isValid).to.eq(false);
+    expect(invalidCat2.isValid).to.eq(false);
+  });
+
+  it('should return whats invalid about an object key', () => {
+    expect(validCat.validate('name')).to.eq(undefined);
+    expect(validCat.validate('age')).to.eq(undefined);
+
+    expect(invalidCat1.validate('name')).to.include('at most');
+    expect(invalidCat1.validate('age')).to.eq(undefined);
+
+    expect(invalidCat2.validate('age')).to.include('at most');
+    expect(invalidCat2.validate('name')).to.eq(undefined);
+  });
+
+  it('should return whats invalid about the object when key is not provided', () => {
+    expect(validCat.validate()).to.eq(undefined);
+    expect(invalidCat2.validate()).to.include('at most');
+    expect(invalidCat1.validate()).to.include('at most');
+  });
+
+  it('should throw an error if validation requested for a field with no validator', () => {
+    expect(() => validCat.validate('breed')).to.throw();
+    expect(() => invalidCat1.validate('breed')).to.throw();
+    expect(() => invalidCat2.validate('breed')).to.throw();
   });
 });

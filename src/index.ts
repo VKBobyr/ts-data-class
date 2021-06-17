@@ -7,7 +7,7 @@ import NumberParser, { NumberMods } from './parsers/number_parser';
 import StringParser, { StringMods } from './parsers/string_parser';
 import OneOf from './parsers/one_of';
 import ArrayFilteredParser from './parsers/array_filtered_parser';
-import validators, { Validator } from './validators';
+import Validators, { Validator } from './validators';
 
 export default DTClass;
 export {
@@ -24,7 +24,7 @@ export {
   DTMembers,
   DTParams,
   DTParsers,
-  validators,
 
+  Validators,
   Validator,
 };

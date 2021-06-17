@@ -11,7 +11,8 @@ export function multi<T>(validators: Validator<T>[]) : Validator<T> {
 
 export function ValidatorGenerator<T>(
   isValid: (v: T) => boolean,
-  message: string, customMessage?: string,
+  message: string,
+  customMessage?: string,
 ): Validator<T> {
   return (v) => (
     isValid(v)
@@ -20,29 +21,53 @@ export function ValidatorGenerator<T>(
   );
 }
 
-const nonNullable = (customMessage?: string) => ValidatorGenerator(
-  (v) => v === undefined || v === null,
-  'Required',
-  customMessage,
-);
+function ConfigurableValidatorGenerator<C, T>(
+  condition: (c: C, v: T) => boolean,
+  message: (c: C) => string,
+) {
+  return (config: C, customMessage?: string) => {
+    return ValidatorGenerator<T>(
+      (v) => condition(config, v),
+      message(config),
+      customMessage,
+    );
+  };
+}
 
-const stringMinLen = (len: number, cMessage?: string) => ValidatorGenerator<string>(
-  (v) => v.length < len,
-  `Must be at least ${len} characters long`,
-  cMessage,
-);
+function nonNullable<T>(nonNullValidators?: Validator<T>[], customMessage?: string) {
+  return multi([
+    ValidatorGenerator(
+      (v) => v === undefined || v === null,
+      'Required',
+      customMessage,
+    ),
+    ...(nonNullValidators ?? []),
+  ]);
+}
 
-const stringMaxLen = (len: number, cMessage?: string) => ValidatorGenerator<string>(
-  (v) => v.length > len,
-  `Must be at most ${len} characters long`,
-  cMessage,
-);
-
-const validators = {
+const Validators = {
   nonNullable,
-  stringMinLen,
-  stringMaxLen,
   multi,
+  strings: {
+    minLen: ConfigurableValidatorGenerator<number, string>(
+      (min, v) => v.length < min,
+      (min) => `Must be at least ${min} characters long.`,
+    ),
+    maxLen: ConfigurableValidatorGenerator<number, string>(
+      (max, v) => v.length > max,
+      (max) => `Must be at most ${max} characters long.`,
+    ),
+  },
+  numbers: {
+    min: ConfigurableValidatorGenerator<number, number>(
+      (min, v) => v < min,
+      (min) => `Must be at least ${min}.`,
+    ),
+    max: ConfigurableValidatorGenerator<number, number>(
+      (max, v) => v > max,
+      (max) => `Must be at most ${max}.`,
+    ),
+  },
 };
 
-export default validators;
+export default Validators;
