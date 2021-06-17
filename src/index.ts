@@ -9,22 +9,31 @@ import OneOf from './parsers/one_of';
 import ArrayFilteredParser from './parsers/array_filtered_parser';
 import Validators, { Validator } from './validators';
 
+const Parsers = {
+  string: StringParser,
+  number: NumberParser,
+  bool: BoolParser,
+  defined: Defined,
+  definedLazy: DefinedLazy,
+  parseOrEmpty: ParseOrEmpty,
+  arrayFiltered: ArrayFilteredParser,
+  oneOf: OneOf,
+};
+
+const Mods = {
+  string: StringMods,
+  number: NumberMods,
+};
+
 export default DTClass;
 export {
-  StringParser,
-  NumberParser,
-  Defined,
-  DefinedLazy,
-  ParseOrEmpty,
-  ArrayFilteredParser,
-  OneOf,
-  StringMods,
-  NumberMods,
-  BoolParser,
+  Parsers,
+  Mods,
+  Validators,
+
   DTMembers,
   DTParams,
   DTParsers,
 
-  Validators,
   Validator,
 };

@@ -4,24 +4,26 @@ import { describe, it, beforeEach } from 'mocha';
 import DTClass, {
   DTMembers,
   DTParsers,
-  Defined, DefinedLazy, NumberMods, NumberParser, StringMods, StringParser, DTParams, Validators,
+  Mods,
+  Parsers,
+  Validators,
 } from '../src';
-import { DTValidators } from '../src/data_class';
+import { DTParams, DTValidators } from '../src/data_class';
 
 const parsers: DTParsers<Person> = {
-  age: Defined(
-    NumberParser({
+  age: Parsers.defined(
+    Parsers.number({
       modifiers: [
-        NumberMods.minMax({ min: 0, max: 100 }),
-        NumberMods.round(1),
+        Mods.number.minMax({ min: 0, max: 100 }),
+        Mods.number.round(1),
       ],
     }),
   ),
-  state: StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] }),
-  firstName: Defined(StringParser({})),
-  lastName: DefinedLazy(StringParser({}), () => 'unknown'),
-  middleName: StringParser({}),
-  employer: Defined(StringParser({}), 'unknown'),
+  state: Parsers.string({ modifiers: [Mods.string.upper(), Mods.string.maxLen(2)] }),
+  firstName: Parsers.defined(Parsers.string({})),
+  lastName: Parsers.definedLazy(Parsers.string({}), () => 'unknown'),
+  middleName: Parsers.string({}),
+  employer: Parsers.defined(Parsers.string({}), 'unknown'),
   inventory: (v) => (Array.isArray(v) ? v : undefined),
 };
 
@@ -274,8 +276,8 @@ describe('DTClass equals', () => {
 
 describe('DTClass empty', () => {
   const smolParsers: DTParsers<SmolPerson> = {
-    name: Defined(StringParser({}), 'default name'),
-    age: NumberParser({}),
+    name: Parsers.defined(Parsers.string({}), 'default name'),
+    age: Parsers.number({}),
   };
 
   class SmolPerson extends DTClass<SmolPerson> {
@@ -301,9 +303,9 @@ describe('DTClass empty', () => {
 
 describe('DTClass validations', () => {
   const catParsers: DTParsers<Cat> = {
-    name: Defined(StringParser({})),
-    age: NumberParser({}),
-    breed: StringParser({}),
+    name: Parsers.defined(Parsers.string({})),
+    age: Parsers.number({}),
+    breed: Parsers.string({}),
   };
 
   const catValidators: DTValidators<Cat> = {

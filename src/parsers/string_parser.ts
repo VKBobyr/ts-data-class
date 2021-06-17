@@ -19,14 +19,14 @@ const StringParser: ConfigParser<string | undefined, StringParserP> = (c) => (v)
 
 export default StringParser;
 
-const ModStringUpper: ConfigModifier<string, void> = () => (v) => v.toUpperCase();
-const ModStringLower: ConfigModifier<string, void> = () => (v) => v.toLowerCase();
-const ModStringMaxLen: ConfigModifier<string, number> = (maxLen: number) => {
-  return (v) => v.substr(0, maxLen);
+const upper: ConfigModifier<string, void> = () => (v) => v.toUpperCase();
+const lower: ConfigModifier<string, void> = () => (v) => v.toLowerCase();
+const maxLen: ConfigModifier<string, number> = (len: number) => {
+  return (v) => v.substr(0, len);
 };
 
 export const StringMods = {
-  lower: ModStringLower,
-  upper: ModStringUpper,
-  maxLen: ModStringMaxLen,
+  lower,
+  upper,
+  maxLen,
 };
