@@ -48,7 +48,8 @@ export default abstract class DTClass<T extends DTClass<T>> {
       if (!validator) return undefined;
 
       // @ts-ignore
-      return validator(this[key]);
+      const validation = validator(this[key]);
+      return validation ? `${key}: ${validation}` : undefined;
     }, undefined);
   }
 
@@ -58,7 +59,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
    *
    * @throws ValidatorsNotFoundError if not set
    */
-  get isValid() : boolean {
+  get isValid(): boolean {
     return !this.validateAllFields;
   }
 

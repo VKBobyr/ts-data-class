@@ -310,7 +310,7 @@ describe('DTClass validations', () => {
 
   const catValidators: DTValidators<Cat> = {
     name: Validators.strings.maxLen(3),
-    age: Validators.numbers.max(3),
+    age: Validators.defined([Validators.numbers.max(3)]),
     breed: null,
   };
 
@@ -343,6 +343,12 @@ describe('DTClass validations', () => {
     age: 4, // too big
   });
 
+  const invalidCat3 = new Cat({
+    breed: 'Breedy McBreed',
+    name: 'Ace',
+    // missing age
+  });
+
   it('should return valid for valid objects and invalid for invalid', () => {
     expect(validCat.isValid).to.eq(true);
     expect(invalidCat1.isValid).to.eq(false);
@@ -358,6 +364,9 @@ describe('DTClass validations', () => {
 
     expect(invalidCat2.validate('age')).to.include('at most');
     expect(invalidCat2.validate('name')).to.eq(undefined);
+
+    expect(invalidCat3.validate('age')).to.include('Required');
+    expect(invalidCat3.validate('name')).to.eq(undefined);
   });
 
   it('should return whats invalid about the object when key is not provided', () => {

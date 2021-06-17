@@ -5,12 +5,12 @@ import { Validators } from '../src';
 describe('Validators', () => {
   describe('nonNullable', () => {
     const message = 'Required';
-    const emptyValidator = Validators.nonNullable();
+    const emptyValidator = Validators.defined();
 
     const customMessage = 'ERR';
-    const emptyCustomValidator = Validators.nonNullable([], customMessage);
+    const emptyCustomValidator = Validators.defined([], customMessage);
 
-    const stringValidator = Validators.nonNullable(
+    const stringValidator = Validators.defined(
       [Validators.strings.maxLen(3)],
     );
 

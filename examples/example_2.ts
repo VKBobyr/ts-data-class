@@ -2,12 +2,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 import DTClass, {
-  DTMembers, DTParsers, Defined, NumberParser, ParseOrEmpty, StringParser,
+  DTMembers, DTParsers, Parsers,
 } from '../src';
 
 const ownerParsers: DTParsers<Owner> = {
-  name: Defined(StringParser({}), 'unknown name'),
-  age: Defined(NumberParser({}), -1),
+  name: Parsers.defined(Parsers.string({}), 'unknown name'),
+  age: Parsers.defined(Parsers.number({}), -1),
 };
 
 class Owner extends DTClass<Owner> {
@@ -24,7 +24,7 @@ const parsers: DTParsers<Cat> = {
   numLives: (v) => (typeof v === 'number' ? v : 9),
   breed: (v) => ((typeof v === 'string') ? v : 'stray'),
   name: (v) => (typeof v === 'string' ? v : undefined),
-  owner: ParseOrEmpty(Owner),
+  owner: Parsers.parseOrEmpty(Owner),
 };
 
 class Cat extends DTClass<Cat> {

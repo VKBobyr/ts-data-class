@@ -34,19 +34,24 @@ function ConfigurableValidatorGenerator<C, T>(
   };
 }
 
-function nonNullable<T>(nonNullValidators?: Validator<T>[], customMessage?: string) {
-  return multi([
+function defined<T>(
+  nonNullValidators?: Validator<NonNullable<T>>[],
+  customMessage?: string,
+) : Validator<T | undefined> {
+  return multi<T | undefined>([
     ValidatorGenerator(
       (v) => v === undefined || v === null,
       'Required',
       customMessage,
     ),
+
+    // @ts-ignore
     ...(nonNullValidators ?? []),
   ]);
 }
 
 const Validators = {
-  nonNullable,
+  defined,
   multi,
   strings: {
     minLen: ConfigurableValidatorGenerator<number, string>(

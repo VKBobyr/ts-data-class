@@ -1,29 +1,30 @@
 import DTClass, {
   DTMembers,
   DTParsers,
-  Defined, NumberMods, NumberParser, StringMods, StringParser,
+  Mods,
+  Parsers,
 } from '../src';
 
 const parsers: DTParsers<Person> = {
-  age: Defined(
-    NumberParser({
+  age: Parsers.defined(
+    Parsers.number({
       modifiers: [
-        NumberMods.minMax({ min: 0, max: 100 }),
-        NumberMods.round(1),
+        Mods.number.minMax({ min: 0, max: 100 }),
+        Mods.number.round(1),
       ],
     }),
   ),
-  state: Defined(
-    StringParser({
+  state: Parsers.defined(
+    Parsers.string({
       modifiers: [
-        StringMods.upper(),
-        StringMods.maxLen(2)],
+        Mods.string.upper(),
+        Mods.string.maxLen(2)],
     }),
   ),
-  firstName: Defined(StringParser({})),
-  lastName: Defined(StringParser({}), 'unknown'),
-  middleName: StringParser({}),
-  employer: Defined(StringParser({}), 'unknown'),
+  firstName: Parsers.defined(Parsers.string({})),
+  lastName: Parsers.defined(Parsers.string({}), 'unknown'),
+  middleName: Parsers.string({}),
+  employer: Parsers.defined(Parsers.string({}), 'unknown'),
 };
 
 class Person extends DTClass<Person> {

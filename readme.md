@@ -7,6 +7,7 @@ Every instance of the data class will automatically have:
 - A typed constructor
 - `copy` & `copyDeep`
 - `parse` & `tryParse`
+- `validate`
 - `equals`
 
 ## Installation
@@ -23,29 +24,39 @@ yarn: `yarn add ts-data-class`
 2. Define class members, marking optional with `?:` and required with `!:`
 3. Write a `parsers` constant of type `DTParsers<T>`. 
    - This will define how each of the members is validated and parsed. 
-   - For each of the fields, define a function of type `(v: unknown) => T` or use one of the provided parsers like `Defined`, `NumberParser`, or `StringParser`
-4. Create a constructor that 
+   - For each of the fields, define a function of type `(v: unknown) => T` or use one of the provided parsers by importing the `Parsers` object
+4. (optional) Write a `validators` constant of type `DTValidators<T>` 
+   - This provides validation for your class fields via the `validate` method
+   - For each of the fields, provide a validation function of type `(v: T) => string | undefined` where `string` is the error message and `undefined` is returned in case of a successful validation or use one of the provided validators by importing the `Validators` object
+5. Create a constructor that 
    - Accepts `params: DTMembers<T>`
-   - Calls `super(parsers)`
+   - Calls `super(parsers)` (if you created a `validators` variable in step 4, call `super(parsers, {validators}`))
    - Calls `this.assign(params)`
 ##### Example:
 
 ```typescript
 const parsers: DTParsers<Person> = {
-  age: Defined(
-    NumberParser({
+  age: Parsers.defined(
+    Parsers.number({
       modifiers: [
-        NumberMods.minMax({ min: 0, max: 100 }),
-        NumberMods.round(1),
+        Mods.number.minMax({ min: 0, max: 100 }),
+        Mods.number.round(1),
       ],
     }),
   ),
-  state: Defined(StringParser({ modifiers: [StringMods.upper(), StringMods.maxLen(2)] })),
-  firstName: Defined(StringParser({})),
-  lastName: Defined(StringParser({}), 'unknown'),
-  middleName: StringParser({}),
-  employer: Defined(StringParser({}), 'unknown'),
+  state: Parsers.defined(
+    Parsers.string({
+      modifiers: [
+        Mods.string.upper(),
+        Mods.string.maxLen(2)],
+    }),
+  ),
+  firstName: Parsers.defined(Parsers.string({})),
+  lastName: Parsers.defined(Parsers.string({}), 'unknown'),
+  middleName: Parsers.string({}),
+  employer: Parsers.defined(Parsers.string({}), 'unknown'),
 };
+
 
 class Person extends DTClass<Person> {
   firstName!: string // required
@@ -181,4 +192,66 @@ Person.equal(person, { ...person }); // true
 Person.equal(person, { ...person, "firstName": "rambo" }); // false
 Person.equal(undefined, undefined); // true
 // etc..
+```
+
+### Validation Example
+
+```typescript
+import DTClass, {
+  DTParams, DTParsers, Parsers, Validators,
+} from '../src';
+import { DTValidators } from '../src/data_class';
+
+const parsers: DTParsers<Cat> = {
+  name: Parsers.defined(Parsers.string({})),
+  breed: Parsers.defined(Parsers.string({})),
+  age: Parsers.number({}),
+};
+
+const validators: DTValidators<Cat> = {
+  name: Validators.strings.maxLen(3),
+  age: Validators.defined([
+    Validators.numbers.max(3),
+  ]),
+  breed: null, // dont validate this value
+};
+
+class Cat extends DTClass<Cat> {
+  name!: string
+  breed!: string
+  age?: number
+
+  constructor(params: DTParams<Cat>) {
+    super(parsers, { validators });
+    this.assign(params);
+  }
+}
+
+const cat = new Cat({
+  breed: 'Breedy McBreed',
+  name: 'Acer', // too long
+});
+
+console.log(cat.validate('breed')); // validator not found error
+
+console.log(cat.validate('name')); // Must be at most 3 characters long.
+console.log(cat.validate('age')); // Required
+console.log(cat.validate()); // name: Must be at most 3 characters long.
+console.log(cat.isValid); // false
+
+const newCat = cat.copy({ name: 'Bob' });
+console.log(newCat.validate('name')); // undefined
+console.log(newCat.validate('age')); // Required
+console.log(newCat.validate()); // age: Required
+console.log(newCat.isValid); // false
+
+const newerCat = newCat.copy({ age: 4 });
+console.log(newerCat.validate('age')); // Must be at most 3.
+console.log(newerCat.validate()); // age: Must be at most 3.
+console.log(newerCat.isValid); // false
+
+const newestCat = newCat.copy({ age: 3 });
+console.log(newestCat.validate('age')); // undefined
+console.log(newestCat.validate()); // undefined
+console.log(newestCat.isValid); // true
 ```
