@@ -23,7 +23,7 @@ class Cat extends DTClass<Cat> {
   age?: number
 
   constructor(params: DTParams<Cat>) {
-    super(parsers, { validators });
+    super({ parsers, validators });
     this.assign(params);
   }
 }

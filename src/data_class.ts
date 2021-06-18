@@ -25,22 +25,35 @@ export type DTValidators<T extends DTClass<T>> = {
   [K in keyof DTMembers<T>]-?: Validator<T[K]> | null
 }
 
-type DTValidation<T> = Record<keyof DTMembers<T>, string | undefined>
+export type DTValidation<T> = Partial<Record<keyof DTMembers<T>, string>>
 
 export type DTAdditionalConfig<T extends DTClass<T>> = {
   validators?: DTValidators<T>
 }
 
+type DTClassParams<T extends DTClass<T>> = {
+  parsers: DTParsers<T>
+  validators?: DTValidators<T>
+}
+
 /* eslint-disable no-unused-vars */
 export default abstract class DTClass<T extends DTClass<T>> {
-  static parsers: DTParsers<any>
+  static params: DTClassParams<any>
   // static validators: DTValidators<any>
 
-  protected get validators(): DTValidators<T> {
+  static get keys(): (keyof DTMembers)[] {
     // @ts-ignore
-    const { validators } = this.constructor;
-    if (validators === undefined) throw new ValidatorsNotFoundError(this);
-    return validators;
+    return Object.keys(this.params.parsers);
+  }
+
+  private get keys(): (keyof DTMembers<T>)[] {
+    // @ts-ignore
+    return this.constructor.keys;
+  }
+
+  protected get params(): DTClassParams<T> {
+    // @ts-ignore
+    return this.constructor.params;
   }
 
   /**
@@ -54,8 +67,11 @@ export default abstract class DTClass<T extends DTClass<T>> {
   }
 
   validate(): DTValidation<T> | undefined {
+    if (!this.params.validators) throw ValidatorsNotFoundError;
+
     const allErrors = this.keys.reduce<DTValidation<T>>((errors, key) => {
-      const validator = this.validators[key];
+      // @ts-ignore
+      const validator = this.params.validators[key];
       if (!validator) return errors;
 
       // @ts-ignore
@@ -80,26 +96,12 @@ export default abstract class DTClass<T extends DTClass<T>> {
    * @throws ValidatorNotFoundForFieldError if not set for field
    */
   validateMember(key: keyof DTMembers<T>): string | undefined {
-    const validator = this.validators[key];
+    // @ts-ignore
+    const validator = this.params.validators[key];
     // @ts-ignore
     if (!validator) throw new ValidatorNotFoundForFieldError(this, key);
     // @ts-ignore
     return validator(this[key]);
-  }
-
-  static get keys(): (keyof DTMembers)[] {
-    // @ts-ignore
-    return Object.keys(this.parsers);
-  }
-
-  protected get parsers(): DTParsers<T> {
-    // @ts-ignore
-    return this.constructor.parsers;
-  }
-
-  private get keys(): (keyof DTMembers<T>)[] {
-    // @ts-ignore
-    return this.constructor.keys;
   }
 
   private instantiate(args: DTMembers<T>): T {
@@ -108,14 +110,9 @@ export default abstract class DTClass<T extends DTClass<T>> {
     return new Constructor(args);
   }
 
-  constructor(parsers: DTParsers<T>, params?: DTAdditionalConfig<T>) {
+  constructor(params: DTClassParams<T>) {
     // @ts-ignore
-    this.constructor.parsers = parsers;
-
-    if (params) {
-      // @ts-ignore
-      this.constructor.validators = params.validators;
-    }
+    this.constructor.params = params;
   }
 
   /**
@@ -125,11 +122,11 @@ export default abstract class DTClass<T extends DTClass<T>> {
    */
   protected assign(params: DTMembers<T>) {
     // @ts-ignore
-    if (this.parsers === undefined) throw new ParsersNotFoundError(this);
+    if (this.params.parsers === undefined) throw new ParsersNotFoundError(this);
 
     DTClass.assertIsObject(params);
     // @ts-ignore
-    Object.assign(this, DTClass.parseParams({}, params, this.constructor.parsers));
+    Object.assign(this, DTClass.parseParams({}, params, this.params.parsers));
     Object.freeze(this);
   }
 

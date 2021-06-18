@@ -2,72 +2,23 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import isEqual from 'lodash.isequal';
-import DTClass, {
+import {
   DTMembers,
-  DTParsers,
-  Mods,
-  Parsers,
-  Validators,
 } from '../src';
-import { DTParams, DTValidators } from '../src/data_class';
-
-const parsers: DTParsers<Person> = {
-  age: Parsers.defined(
-    Parsers.number({
-      modifiers: [
-        Mods.number.minMax({ min: 0, max: 100 }),
-        Mods.number.round(1),
-      ],
-    }),
-  ),
-  state: Parsers.string({ modifiers: [Mods.string.upper(), Mods.string.maxLen(2)] }),
-  firstName: Parsers.defined(Parsers.string({})),
-  lastName: Parsers.definedLazy(Parsers.string({}), () => 'unknown'),
-  middleName: Parsers.string({}),
-  employer: Parsers.defined(Parsers.string({}), 'unknown'),
-  inventory: (v) => (Array.isArray(v) ? v : undefined),
-};
-
-class Person extends DTClass<Person> {
-  firstName!: string
-  lastName!: string
-  middleName?: string
-  employer?: string
-  state?: string
-  age!: number
-  inventory?: string[]
-
-  constructor(params: DTMembers<Person>) {
-    super(parsers);
-    this.assign(params);
-  }
-}
-
-const getCorrectParams = () => ({
-  age: 12, employer: 'e', firstName: 'fn', lastName: 'ln', middleName: 'mn', state: 'Florida', inventory: ['item 1'],
-});
-
-const getExpectedParams = () => ({
-  age: 12, employer: 'e', firstName: 'fn', lastName: 'ln', middleName: 'mn', state: 'FL', inventory: ['item 1'],
-});
-
-const getParamsWithNoDefault = () => ({
-  ...getCorrectParams(), firstName: undefined,
-});
+import {
+  EmptyablePerson,
+  getCorrectValidParams, getIncorrectParams,
+  getInvalidParams, getParsedParams, invalidParamValidation, Person,
+} from './test_classes';
 
 describe('DTClass constructor', () => {
   it('should instantiate a class when all params are provided', () => {
-    const person = new Person(getCorrectParams());
-    expect(person.equals(getExpectedParams())).to.eq(true);
-  });
-
-  it('should correctly use defaults', () => {
-    const person = new Person({ ...getCorrectParams(), employer: undefined });
-    expect(person.equals({ ...getExpectedParams(), employer: 'unknown' })).to.eq(true);
+    const person = new Person(getCorrectValidParams());
+    expect(person.equals(getParsedParams())).to.eq(true);
   });
 
   it('should correctly throw an error if no default is provided', () => {
-    expect(() => new Person(getParamsWithNoDefault())).to.throw();
+    expect(() => new Person(getIncorrectParams())).to.throw();
   });
 
   it('should throw if params is not an object', () => {
@@ -75,6 +26,7 @@ describe('DTClass constructor', () => {
     expect(() => new Person(null)).to.throw();
     expect(() => new Person(4)).to.throw();
     expect(() => new Person('hello')).to.throw();
+    expect(() => new Person()).to.throw();
   });
 });
 
@@ -85,7 +37,7 @@ describe('DTClass copies', () => {
   };
 
   const expectedCopyParams = {
-    ...getExpectedParams(),
+    ...getParsedParams(),
     firstName: 'drake',
     state: 'WA',
   };
@@ -96,7 +48,7 @@ describe('DTClass copies', () => {
 
   describe('shallow', () => {
     beforeEach(() => {
-      person = new Person(getCorrectParams());
+      person = new Person(getCorrectValidParams());
       personSameCopy = person.copy();
       personParamCopy = person.copy(copyParams);
     });
@@ -134,7 +86,7 @@ describe('DTClass copies', () => {
 
   describe('deep', () => {
     beforeEach(() => {
-      person = new Person(getCorrectParams());
+      person = new Person(getCorrectValidParams());
       personSameCopy = person.deepCopy();
       personParamCopy = person.deepCopy(copyParams);
     });
@@ -176,10 +128,10 @@ describe('DTClass parsing', () => {
   describe('parse', () => {
     it('should not include values that arent defined in the parser and use defaults', () => {
       const person = Person.parse({
-        ...getCorrectParams(), ...getUnrelatedValues(),
+        ...getCorrectValidParams(), ...getUnrelatedValues(),
       });
 
-      expect(person.equals(getExpectedParams())).to.eq(true);
+      expect(person.equals(getParsedParams())).to.eq(true);
       expect(person).to.not.include(getUnrelatedValues());
     });
 
@@ -199,10 +151,10 @@ describe('DTClass parsing', () => {
   describe('tryParse', () => {
     it('should not include values that arent defined in the parser and use defaults', () => {
       const person = Person.tryParse({
-        ...getCorrectParams(), ...getUnrelatedValues(),
+        ...getCorrectValidParams(), ...getUnrelatedValues(),
       });
 
-      expect(person.equals(getExpectedParams())).to.eq(true);
+      expect(person.equals(getParsedParams())).to.eq(true);
       expect(person).to.not.include(getUnrelatedValues());
     });
 
@@ -222,10 +174,10 @@ describe('DTClass parsing', () => {
   describe('tryCreate', () => {
     it('should not include values that arent defined in the parser and use defaults', () => {
       const person = Person.tryCreate({
-        ...getCorrectParams(), ...getUnrelatedValues(),
+        ...getCorrectValidParams(), ...getUnrelatedValues(),
       });
 
-      expect(person.equals(getExpectedParams())).to.eq(true);
+      expect(person.equals(getParsedParams())).to.eq(true);
       expect(person).to.not.include(getUnrelatedValues());
     });
 
@@ -244,7 +196,7 @@ describe('DTClass parsing', () => {
 });
 
 describe('DTClass equals', () => {
-  const person = new Person(getCorrectParams());
+  const person = new Person(getCorrectValidParams());
   const personParams = { ...person };
 
   it('should return true as long as members match', () => {
@@ -276,114 +228,54 @@ describe('DTClass equals', () => {
 });
 
 describe('DTClass empty', () => {
-  const smolParsers: DTParsers<SmolPerson> = {
-    name: Parsers.defined(Parsers.string({}), 'default name'),
-    age: Parsers.number({}),
-  };
-
-  class SmolPerson extends DTClass<SmolPerson> {
-    name: string
-    age?: number | undefined
-
-    constructor(params: DTMembers<SmolPerson>) {
-      super(smolParsers);
-      this.assign(params);
-    }
-  }
-
   it('should create an empty field with defaults', () => {
-    const person = SmolPerson.empty();
-    expect(person.equals({ name: 'default name', age: undefined }));
+    const person = EmptyablePerson.empty();
+    expect(person.equals({ name: 'default name', age: undefined })).to.eq(true);
   });
 
   it('should create an empty field with defaults and provided params', () => {
-    const person = SmolPerson.empty({ age: 42 });
-    expect(person.equals({ name: 'default name', age: 42 }));
+    const person = EmptyablePerson.empty({ age: 42 });
+    expect(person.equals({ name: 'default name', age: 42 })).to.eq(true);
+  });
+
+  it('should throw an error if default is required', () => {
+    expect(() => Person.empty()).to.throw();
   });
 });
 
 describe('DTClass validations', () => {
-  const catParsers: DTParsers<Cat> = {
-    name: Parsers.defined(Parsers.string({})),
-    age: Parsers.number({}),
-    breed: Parsers.string({}),
-  };
-
-  const catValidators: DTValidators<Cat> = {
-    name: Validators.strings.maxLen(3),
-    age: Validators.defined([Validators.numbers.max(3)]),
-    breed: null,
-  };
-
-  class Cat extends DTClass<Cat> {
-    name: string
-    breed: string
-    age?: number
-
-    constructor(params: DTParams<Cat>) {
-      super(catParsers, { validators: catValidators });
-      this.assign(params);
-    }
-  }
-
-  const errRequired = 'Required';
-  const errNumMax = 'Must be at most 3.';
-  const errStrMax = 'Must be at most 3 characters long.';
-
-  const validCat = new Cat({
-    breed: 'Breedy McBreed',
-    name: 'Ace',
-    age: 3,
-  });
-
-  const invalidCat1 = new Cat({
-    breed: 'Breedy McBreed',
-    name: 'Acer', // too long
-    // missing age
-  });
-
-  const invalidCat2 = new Cat({
-    breed: 'Breedy McBreed',
-    name: 'Ace',
-    age: 4, // too big
-  });
-
-  const invalidCat3 = new Cat({
-    breed: 'Breedy McBreed',
-    name: 'Ace',
-    // missing age
-  });
+  const validPerson = new Person(getCorrectValidParams());
+  const invalidPerson = new Person(getInvalidParams());
 
   it('should return valid for valid objects and invalid for invalid', () => {
-    expect(validCat.isValid).to.eq(true);
-    expect(invalidCat1.isValid).to.eq(false);
-    expect(invalidCat2.isValid).to.eq(false);
+    expect(validPerson.isValid).to.eq(true);
+    expect(invalidPerson.isValid).to.eq(false);
   });
 
-  it('should return whats invalid about an object key', () => {
-    expect(validCat.validateMember('name')).to.eq(undefined);
-    expect(validCat.validateMember('age')).to.eq(undefined);
+  it('should throw for members that dont have validators', () => {
+    expect(() => validPerson.validateMember('middleName')).to.throw();
+  });
 
-    expect(invalidCat1.validateMember('name')).to.include('at most');
-    expect(invalidCat1.validateMember('age')).to.include('Required');
+  it('should return undefined for valid members', () => {
+    expect(validPerson.validateMember('state')).to.eq(undefined);
+    expect(validPerson.validateMember('firstName')).to.eq(undefined);
+    expect(validPerson.validateMember('lastName')).to.eq(undefined);
+    expect(validPerson.validateMember('inventory')).to.eq(undefined);
+    expect(validPerson.validateMember('age')).to.eq(undefined);
+    expect(validPerson.validateMember('employer')).to.eq(undefined);
+  });
 
-    expect(invalidCat2.validateMember('age')).to.include('at most');
-    expect(invalidCat2.validateMember('name')).to.eq(undefined);
-
-    expect(invalidCat3.validateMember('age')).to.include('Required');
-    expect(invalidCat3.validateMember('name')).to.eq(undefined);
+  it('should return the error for invalid members', () => {
+    expect(invalidPerson.validateMember('state')).to.eq(invalidParamValidation.state);
+    expect(invalidPerson.validateMember('firstName')).to.eq(invalidParamValidation.firstName);
+    expect(invalidPerson.validateMember('lastName')).to.eq(invalidParamValidation.lastName);
+    expect(invalidPerson.validateMember('inventory')).to.eq(invalidParamValidation.inventory);
+    expect(invalidPerson.validateMember('age')).to.eq(invalidParamValidation.age);
+    expect(invalidPerson.validateMember('employer')).to.eq(invalidParamValidation.employer);
   });
 
   it('should return whats invalid about the object when key is not provided', () => {
-    expect(validCat.validate()).to.eq(undefined);
-    expect(isEqual(invalidCat1.validate(), { name: errStrMax, age: errRequired })).to.eq(true);
-    expect(isEqual(invalidCat2.validate(), { age: errNumMax })).to.eq(true);
-    expect(isEqual(invalidCat3.validate(), { age: errRequired })).to.eq(true);
-  });
-
-  it('should throw an error if validation requested for a field with no validator', () => {
-    expect(() => validCat.validateMember('breed')).to.throw();
-    expect(() => invalidCat1.validateMember('breed')).to.throw();
-    expect(() => invalidCat2.validateMember('breed')).to.throw();
+    expect(isEqual(invalidPerson.validate(), invalidParamValidation));
+    expect(isEqual(validPerson.validate(), undefined));
   });
 });

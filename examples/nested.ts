@@ -15,7 +15,7 @@ class Owner extends DTClass<Owner> {
   age?: number
 
   constructor(params: DTMembers<Owner>) {
-    super(ownerParsers);
+    super({ parsers: ownerParsers });
     this.assign(params);
   }
 }
@@ -34,7 +34,7 @@ class Cat extends DTClass<Cat> {
   owner!: Owner; // required
 
   constructor(params: DTMembers<Cat>) {
-    super(parsers);
+    super({ parsers });
     this.assign(params);
   }
 }
@@ -70,4 +70,18 @@ console.log(cat2);
   }
 */
 
-const cat3 = cat2.copy();
+const cat3 = cat2.copy({
+  breed: 'tiger',
+  owner: cat2.owner.copy({
+    name: 'bobby',
+  }),
+});
+console.log(cat3);
+/**
+  Cat {
+    numLives: 8,
+    breed: 'tiger',
+    name: 'Kitteh',
+    owner: Owner { name: 'bobby', age: -1 }
+  }
+ */

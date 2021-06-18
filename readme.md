@@ -30,46 +30,51 @@ yarn: `yarn add ts-data-class`
    - For each of the fields, provide a validation function of type `(v: T) => string | undefined` where `string` is the error message and `undefined` is returned in case of a successful validation. You can also use one of the provided validators by importing the `Validators` object
 5. Create a constructor that 
    - Accepts `params: DTMembers<T>`
-   - Calls `super(parsers)` (if you created a `validators` variable in step 4, call `super(parsers, {validators}`))
+   - Calls `super({parsers})`
+     - Note: If you created a `validators` variable in step 4, call `super({parsers, validators})`
    - Calls `this.assign(params)`
 ##### Example:
 
 ```typescript
 const parsers: DTParsers<Person> = {
-  age: Parsers.defined(
-    Parsers.number({
-      modifiers: [
-        Mods.number.minMax({ min: 0, max: 100 }),
-        Mods.number.round(1),
-      ],
-    }),
-  ),
-  state: Parsers.defined(
-    Parsers.string({
-      modifiers: [
-        Mods.string.upper(),
-        Mods.string.maxLen(2)],
-    }),
-  ),
+  state: Parsers.string({ modifiers: [Mods.string.upper(), Mods.string.maxLen(2)] }),
   firstName: Parsers.defined(Parsers.string({})),
-  lastName: Parsers.defined(Parsers.string({}), 'unknown'),
+  lastName: Parsers.definedLazy(Parsers.string({}), () => 'unknown'),
   middleName: Parsers.string({}),
   employer: Parsers.defined(Parsers.string({}), 'unknown'),
+  inventory: (v) => (Array.isArray(v) ? v : undefined),
+
+  // equivalent of `Parsers.number({})`
+  age: (v) => (typeof v === 'number' ? v : undefined),
 };
 
+// optional
+const validators: DTValidators<Person> = {
+  state: Validators.defined(),
+  firstName: Validators.strings.maxLen(3),
+  lastName: Validators.strings.maxLen(3),
+  middleName: null, // don't validate
+  inventory: (v) => ((v === undefined || v.length > 0) ? undefined : 'Must have at least one item'),
+  age: Validators.defined([Validators.numbers.max(3)]),
+  employer: Validators.defined(),
+};
 
 class Person extends DTClass<Person> {
   firstName!: string // required
   lastName!: string // required
-  age!: number // required
   middleName?: string // optional
   employer?: string // optional
-  state?: string; // optional
+  age?: number // optional
+  state?: string // optional
+  inventory?: string[] // optional
 
   // important!
   constructor(params: DTMembers<Person>) {
-    super(parsers); // sets parsers for the Person class
-    this.assign(params); // used to parse & set params 
+    super({
+      parsers, // required
+      validators, // optional
+    });
+    this.assign(params);
   }
 }
 ```
@@ -194,9 +199,14 @@ Person.equal(undefined, undefined); // true
 // etc..
 ```
 
-### Validation Example
+## Validation Example
 
 ```typescript
+import DTClass, {
+  DTParams, DTParsers, Parsers, Validators,
+} from '../src';
+import { DTValidators } from '../src/data_class';
+
 const parsers: DTParsers<Cat> = {
   name: Parsers.defined(Parsers.string({})),
   breed: Parsers.defined(Parsers.string({})),
@@ -217,7 +227,7 @@ class Cat extends DTClass<Cat> {
   age?: number
 
   constructor(params: DTParams<Cat>) {
-    super(parsers, { validators });
+    super({ parsers, validators });
     this.assign(params);
   }
 }
@@ -227,7 +237,7 @@ const cat = new Cat({
   name: 'Acer', // too long
 });
 
-console.log(cat.validateMember('breed')); // validator not found error
+// console.log(cat.validateMember('breed')); // validator not found error
 
 console.log(cat.validateMember('name')); // Must be at most 3 characters long.
 console.log(cat.validateMember('age')); // Required
@@ -249,4 +259,91 @@ const newestCat = newCat.copy({ age: 3 });
 console.log(newestCat.validateMember('age')); // undefined
 console.log(newestCat.validate()); // undefined
 console.log(newestCat.isValid); // true
+
 ```
+
+### Nested DTClass Example
+
+```typescript
+const ownerParsers: DTParsers<Owner> = {
+  name: Parsers.defined(Parsers.string({}), 'unknown name'),
+  age: Parsers.defined(Parsers.number({}), -1),
+};
+
+class Owner extends DTClass<Owner> {
+  name!: string
+  age?: number
+
+  constructor(params: DTMembers<Owner>) {
+    super({ parsers: ownerParsers });
+    this.assign(params);
+  }
+}
+
+const parsers: DTParsers<Cat> = {
+  numLives: (v) => (typeof v === 'number' ? v : 9),
+  breed: (v) => ((typeof v === 'string') ? v : 'stray'),
+  name: (v) => (typeof v === 'string' ? v : undefined),
+  owner: Parsers.parseOrEmpty(Owner),
+};
+
+class Cat extends DTClass<Cat> {
+  numLives!: number // required
+  breed!: string // required
+  name?: string // optional
+  owner!: Owner; // required
+
+  constructor(params: DTMembers<Cat>) {
+    super({ parsers });
+    this.assign(params);
+  }
+}
+
+const cat1 = new Cat({
+  numLives: 8,
+  name: 'Whiskers',
+  breed: 'Bald',
+  owner: new Owner({ name: 'jack', age: 2 }),
+});
+console.log(cat1);
+/**
+  Cat {
+    numLives: 8,
+    breed: 'Bald',
+    name: 'Whiskers',
+    owner: Owner { name: 'jack', age: 2 }
+  }
+ */
+
+const cat2 = cat1.copy({
+  name: 'Kitteh',
+  breed: undefined,
+  owner: undefined,
+});
+console.log(cat2);
+/**
+  Cat {
+    numLives: 8,
+    breed: 'stray',
+    name: 'Kitteh',
+    owner: Owner { name: 'unknown name', age: -1 }
+  }
+*/
+
+const cat3 = cat2.copy({
+  breed: 'tiger',
+  owner: cat2.owner.copy({
+    name: 'bobby',
+  }),
+});
+console.log(cat3);
+/**
+  Cat {
+    numLives: 8,
+    breed: 'tiger',
+    name: 'Kitteh',
+    owner: Owner { name: 'bobby', age: -1 }
+  }
+ */
+```
+
