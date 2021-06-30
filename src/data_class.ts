@@ -38,7 +38,8 @@ type DTClassParams<T extends DTClass<T>> = {
 
 /* eslint-disable no-unused-vars */
 export default abstract class DTClass<T extends DTClass<T>> {
-  static params: DTClassParams<any>
+  static params: DTClassParams<any>;
+
   // static validators: DTValidators<any>
 
   static get keys(): (keyof DTMembers)[] {
@@ -57,8 +58,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
   }
 
   /**
-   * Returns true if object passes all validations
-   * false otherwise
+   * Returns __boolean__ whether the object is valid or not
    *
    * @throws ValidatorsNotFoundError if not set
    */
@@ -66,6 +66,14 @@ export default abstract class DTClass<T extends DTClass<T>> {
     return this.validate() === undefined;
   }
 
+  /**
+   * validates the object using the __validators__ field set through the constructor
+   *
+   * @returns a map of all fields and their respective validations
+   * OR __undefined__ if all fields are valid
+   *
+   * @throws __ValidatorsNotFoundError__ if not set
+   */
   validate(): DTValidation<T> | undefined {
     if (!this.params.validators) throw ValidatorsNotFoundError;
 
@@ -80,7 +88,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
       if (validation) errors[key] = validation;
 
       return errors;
-    // @ts-ignore
+      // @ts-ignore
     }, {});
     if (Object.keys(allErrors).length === 0) return undefined;
 
@@ -89,11 +97,11 @@ export default abstract class DTClass<T extends DTClass<T>> {
   }
 
   /**
-   * Returns validation error for the whole object if key not provided
-   * Returns validation for the field if key provided
+   * @returns the validation __string__ or __undefined__ (if everything is valid)
+   * for the provided field
    *
-   * @throws ValidatorsNotFoundError if not set
-   * @throws ValidatorNotFoundForFieldError if not set for field
+   * @throws __ValidatorsNotFoundError__ if the validator object is not present OR
+   * __ValidatorNotFoundForFieldError__ if not set for field
    */
   validateMember(key: keyof DTMembers<T>): string | undefined {
     // @ts-ignore
@@ -177,7 +185,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
    * @throws `KeyParsingError` if fails to parse a key
    * @returns an instance of T
    */
-  static parse<F extends DTClass<F>>(this: DTConstructor<F>, params: any) : F {
+  static parse<F extends DTClass<F>>(this: DTConstructor<F>, params: any): F {
     DTClass.assertIsObject(params);
     return new this(params);
   }
@@ -201,7 +209,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
    * @param params - params with which to try to create a class
    * @returns an instance of T | undefined
    */
-  static tryParse<F extends DTClass<F>>(this: DTConstructor<F>, params: any) : F | undefined {
+  static tryParse<F extends DTClass<F>>(this: DTConstructor<F>, params: any): F | undefined {
     try {
       return new this(params);
     } catch {
@@ -227,7 +235,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
    * Expects another DTClass, but safe to use any other type of object.
    * If an exception is thrown during evaluation, returns false.
    */
-  equals(dc: DTMembers<T> | undefined) : boolean {
+  equals(dc: DTMembers<T> | undefined): boolean {
     // @ts-ignore
     return this.constructor.equal(this, dc);
   }
@@ -250,28 +258,29 @@ export default abstract class DTClass<T extends DTClass<T>> {
   ): DTMembers<P> {
     // @ts-ignore
     const out: DTMembers<P> = {};
-    Object.keys(parsers).forEach((key) => {
-      // @ts-ignore
-      const parser: Parser<T> = parsers[key];
-      if (parser === undefined) return;
-
-      const pValue = params[key];
-      // @ts-ignore
-      const cValue = current[key];
-
-      if (pValue === undefined) {
-        if (cValue === undefined) {
-          // @ts-ignore
-          out[key] = parser(undefined, key);
-        } else {
-          // @ts-ignore
-          out[key] = cValue;
-        }
-      } else if (pValue !== cValue) {
+    Object.keys(parsers)
+      .forEach((key) => {
         // @ts-ignore
-        out[key] = parser(pValue, key);
-      }
-    });
+        const parser: Parser<T> = parsers[key];
+        if (parser === undefined) return;
+
+        const pValue = params[key];
+        // @ts-ignore
+        const cValue = current[key];
+
+        if (pValue === undefined) {
+          if (cValue === undefined) {
+            // @ts-ignore
+            out[key] = parser(undefined, key);
+          } else {
+            // @ts-ignore
+            out[key] = cValue;
+          }
+        } else if (pValue !== cValue) {
+          // @ts-ignore
+          out[key] = parser(pValue, key);
+        }
+      });
 
     return out;
   }
