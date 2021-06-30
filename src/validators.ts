@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 export type Validator<T> = (v: T) => string | undefined
 
-export function multi<T>(validators: Validator<T>[]) : Validator<T> {
+export function multi<T>(validators: Validator<T>[]): Validator<T> {
   return (v: T) => validators
     .reduce<string | undefined>(
       (err, validator) => err ?? validator(v),
@@ -37,7 +37,7 @@ function ConfigurableValidatorGenerator<C, T>(
 function defined<T>(
   nonNullValidators?: Validator<NonNullable<T>>[],
   customMessage?: string,
-) : Validator<T | undefined> {
+): Validator<T | undefined> {
   return multi<T | undefined>([
     ValidatorGenerator(
       (v) => v === undefined || v === null,
@@ -61,6 +61,10 @@ const Validators = {
     maxLen: ConfigurableValidatorGenerator<number, string>(
       (max, v) => v.length > max,
       (max) => `Must be at most ${max} characters long.`,
+    ),
+    required: ConfigurableValidatorGenerator<void, string>(
+      (_, v) => v.length === 0,
+      () => 'Required.',
     ),
   },
   numbers: {
