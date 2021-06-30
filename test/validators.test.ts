@@ -143,31 +143,21 @@ describe('Validators', () => {
     });
 
     describe('required', () => {
-      const validator = Validators.strings.maxLen(4);
+      const validator = Validators.strings.required();
 
-      it('should return an error for longer values', () => {
+      it('should return undefined for non-empty strings', () => {
         expect(validator('abcde'))
           .to
-          .not
           .eq(undefined);
         expect(validator('abcde'))
           .to
-          .not
           .eq(undefined);
       });
 
-      it('should return undefined for values that are shorter or eq to 4', () => {
-        expect(validator('a'))
+      it('should return an error for empty strings', () => {
+        expect(validator(''))
           .to
-          .eq(undefined);
-        expect(validator('ab'))
-          .to
-          .eq(undefined);
-        expect(validator('abc'))
-          .to
-          .eq(undefined);
-        expect(validator('abcd'))
-          .to
+          .not
           .eq(undefined);
       });
     });
