@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
 import { Validators } from '../src';
 
 describe('Validators', () => {
@@ -14,151 +12,111 @@ describe('Validators', () => {
       [Validators.strings.maxLen(3)],
     );
 
-    it('should return an error for a null or undefined value', () => {
+    test('should return an error for a null or undefined value', () => {
       expect(emptyValidator(null))
-        .to
-        .eq(message);
+        .toEqual(message);
       expect(emptyValidator(undefined))
-        .to
-        .eq(message);
+        .toEqual(message);
     });
 
-    it('should set custom value', () => {
+    test('should set custom value', () => {
       expect(emptyCustomValidator(null))
-        .to
-        .eq(customMessage);
+        .toEqual(customMessage);
       expect(emptyCustomValidator(undefined))
-        .to
-        .eq(customMessage);
+        .toEqual(customMessage);
     });
 
-    it('should return undefined on a non-null value', () => {
+    test('should return undefined on a non-null value', () => {
       expect(emptyCustomValidator(0))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(emptyCustomValidator(false))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(emptyCustomValidator(42))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(emptyCustomValidator('hello'))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
     });
 
-    it('should run non-null Validators', () => {
+    test('should run non-null Validators', () => {
       expect(stringValidator(undefined))
-        .to
-        .include(message);
+        .toContain(message);
 
       expect(stringValidator('a'))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(stringValidator('ab'))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(stringValidator('abc'))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(stringValidator('abcd'))
-        .to
-        .include('at most');
+        .toContain('at most');
     });
   });
 
   describe('strings', () => {
     describe('minLen', () => {
       const validator = Validators.strings.minLen(4);
-      it('should return an error for short message', () => {
+      test('should return an error for short message', () => {
         expect(validator('abc'))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
         expect(validator('ab'))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
         expect(validator('a'))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
         expect(validator(''))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
       });
 
-      it('should not return an error for long enough message', () => {
+      test('should not return an error for long enough message', () => {
         expect(validator('abcd'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator('abcde'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator('abcdef'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator('abcdefg'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
       });
     });
 
     describe('maxLen', () => {
       const validator = Validators.strings.maxLen(4);
 
-      it('should return an error for messages that are too long', () => {
+      test('should return an error for messages that are too long', () => {
         expect(validator('abcde'))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
         expect(validator('abcdef'))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
         expect(validator('abcdefg'))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
       });
 
-      it('should not return an error for short enough messages', () => {
+      test('should not return an error for short enough messages', () => {
         expect(validator('abcd'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator('abc'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator('ab'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator('a'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator(''))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
       });
     });
 
     describe('required', () => {
       const validator = Validators.strings.required();
 
-      it('should return undefined for non-empty strings', () => {
+      test('should return undefined for non-empty strings', () => {
         expect(validator('abcde'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
         expect(validator('abcde'))
-          .to
-          .eq(undefined);
+          .toEqual(undefined);
       });
 
-      it('should return an error for empty strings', () => {
+      test('should return an error for empty strings', () => {
         expect(validator(''))
-          .to
-          .not
-          .eq(undefined);
+          .not.toEqual(undefined);
       });
     });
   });
@@ -169,34 +127,26 @@ describe('Validators', () => {
       Validators.strings.maxLen(5),
     ]);
 
-    it('should return an error for messages in the wrong range', () => {
+    test('should return an error for messages in the wrong range', () => {
       expect(validator(''))
-        .to
-        .include('at least 3');
+        .toContain('at least 3');
       expect(validator('a'))
-        .to
-        .include('at least 3');
+        .toContain('at least 3');
       expect(validator('ab'))
-        .to
-        .include('at least 3');
+        .toContain('at least 3');
       expect(validator('abcdef'))
-        .to
-        .include('at most 5');
+        .toContain('at most 5');
       expect(validator('abcdefg'))
-        .to
-        .include('at most 5');
+        .toContain('at most 5');
     });
 
-    it('should not return an error in the right range', () => {
+    test('should not return an error in the right range', () => {
       expect(validator('abcde'))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(validator('abcd'))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
       expect(validator('abc'))
-        .to
-        .eq(undefined);
+        .toEqual(undefined);
     });
   });
 });

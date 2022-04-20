@@ -10,7 +10,9 @@ type StringParserP = {
 const StringParser: ConfigParser<string | undefined, StringParserP> = (c) => (v) => {
   if (typeof v === 'string') {
     let out = v;
-    if (c.modifiers !== undefined) out = c.modifiers.reduce((str, mod) => mod(str), out);
+    if (c.modifiers !== undefined) {
+      out = c.modifiers.reduce((str, mod) => mod(str), out);
+    }
     return out;
   }
 

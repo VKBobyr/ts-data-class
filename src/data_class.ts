@@ -262,7 +262,6 @@ export default abstract class DTClass<T extends DTClass<T>> {
       .forEach((key) => {
         // @ts-ignore
         const parser: Parser<T> = parsers[key];
-        if (parser === undefined) return;
 
         const pValue = params[key];
         // @ts-ignore
@@ -272,10 +271,11 @@ export default abstract class DTClass<T extends DTClass<T>> {
           if (cValue === undefined) {
             // @ts-ignore
             out[key] = parser(undefined, key);
-          } else {
-            // @ts-ignore
-            out[key] = cValue;
           }
+          // else {
+          //   // @ts-ignore
+          //   out[key] = cValue;
+          // }
         } else if (pValue !== cValue) {
           // @ts-ignore
           out[key] = parser(pValue, key);

@@ -23,7 +23,9 @@ const ModNumberMinMax: ConfigModifier<number, { min?: number, max?: number; }> =
 
 const ModNumberRound: ConfigModifier<number, number> = (decimals) => {
   return (v) => {
-    if (decimals < 0) return v;
+    if (decimals < 0) {
+      return v;
+    }
     const pow = 10 ** decimals;
     return Math.round(v * pow) / pow;
   };

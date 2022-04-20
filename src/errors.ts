@@ -14,7 +14,9 @@ export class BadParamsError extends Error {
 export class ParsersNotFoundError extends Error {
   constructor(instance: any) {
     const className = instance.constructor.name;
-    super(`Parsers not found for class '${className}'. Define parsers and a custom constructor for class '${className}' and call super(parsers).`);
+    super(
+      `Parsers not found for class '${className}'. Define parsers and a custom constructor for class '${className}' and call super(parsers).`,
+    );
   }
 }
 

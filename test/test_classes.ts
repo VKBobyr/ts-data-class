@@ -19,8 +19,11 @@ const validators: DTValidators<Person> = {
   firstName: Validators.strings.maxLen(3),
   lastName: Validators.strings.maxLen(3),
   middleName: null,
-  inventory: (v) => (v.length > 0 ? undefined : 'Must have at least one item'),
-  age: Validators.defined([Validators.numbers.max(3)]),
+  inventory: (v) => {
+    if (!v) return undefined;
+    return (v.length > 0 ? undefined : 'Must have at least one item');
+  },
+  age: Validators.defined([Validators.numbers.max(3), Validators.numbers.min(0)]),
   employer: Validators.defined(),
 };
 
@@ -99,7 +102,7 @@ const smolParsers: DTParsers<EmptyablePerson> = {
 };
 
 export class EmptyablePerson extends DTClass<EmptyablePerson> {
-    name: string
+    name!: string
     age?: number | undefined
 
     constructor(params: DTMembers<EmptyablePerson>) {

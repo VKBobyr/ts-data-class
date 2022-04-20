@@ -27,28 +27,26 @@
     "DClass"
   ],
   "scripts": {
-    "test": "ts-mocha 'test/**/*.ts' --recursive --timeout 60000 --exit",
+    "test": "jest",
     "build": "tsc -p .",
     "publish": "./publish.sh"
   },
   "devDependencies": {
-    "@types/chai": "4.2.11",
+    "@types/jest": "^27.4.1",
     "@types/lodash.clone": "^4.5.6",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.isundefined": "^3.0.6",
     "@types/lodash.omitby": "^4.6.6",
-    "@types/mocha": "7.0.2",
     "@types/node": "^15.12.2",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
-    "chai": "4.2.0",
     "eslint": "^7.28.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
-    "mocha": "7.2.0",
-    "ts-mocha": "^8.0.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
   },
