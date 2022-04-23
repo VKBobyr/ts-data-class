@@ -2,7 +2,6 @@ import DTClass, {
   DTMembers, DTParams, DTParsers, DTValidators,
 } from './data_class';
 import BoolParser from './parsers/bool_parser';
-import ParseOrEmpty from './parsers/parse_or_empty';
 import Defined from './parsers/defined';
 import DefinedLazy from './parsers/defined_lazy';
 import NumberParser, { NumberMods } from './parsers/number_parser';
@@ -17,7 +16,6 @@ const Parsers = {
   bool: BoolParser,
   defined: Defined,
   definedLazy: DefinedLazy,
-  parseOrEmpty: ParseOrEmpty,
   arrayFiltered: ArrayFilteredParser,
   oneOf: OneOf,
 };

@@ -24,7 +24,7 @@ const parsers: DTParsers<Cat> = {
   numLives: (v) => (typeof v === 'number' ? v : 9),
   breed: (v) => ((typeof v === 'string') ? v : 'stray'),
   name: (v) => (typeof v === 'string' ? v : undefined),
-  owner: Parsers.parseOrEmpty(Owner),
+  owner: (v) => Owner.tryParse(v) ?? Owner.empty(),
 };
 
 class Cat extends DTClass<Cat> {
