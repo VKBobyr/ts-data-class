@@ -4,3 +4,7 @@ yarn.lock
 
 # generated files
 lib
+
+# ide
+**/.idea/workspace.xml
+**/.idea/tasks.xml
