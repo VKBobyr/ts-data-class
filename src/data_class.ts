@@ -37,8 +37,12 @@ export default abstract class DTClass<T extends DTClass<T>> {
 
   constructor(params: DTParams<T>) {
     DTClass.assertIsObject(params);
+
     // @ts-ignore
-    Object.keys(this.parsers).forEach((key) => {
+    const parsers = this.parsers;
+
+    // @ts-ignore
+    Object.keys(parsers).forEach((key) => {
       // @ts-ignore
       const toParse = params[key];
       // @ts-ignore
