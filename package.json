@@ -1,7 +1,10 @@
 {
   "name": "ts-data-class",
+  "author": {
+    "name": "Volodymyr Bobyr"
+  },
   "description": "Data Classes for Typescript",
-  "version": "0.6.71",
+  "version": "0.8.1",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

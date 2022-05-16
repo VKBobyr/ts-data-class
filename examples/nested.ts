@@ -2,8 +2,8 @@ import DTClass, { DTMembers, Parsers } from "../src";
 import { DTParsers } from "../src/data_class";
 
 class Owner extends DTClass<Owner> {
-  name!: string;
-  age?: number;
+  name!: string; // required property
+  age?: number; // optional property
 
   protected get parsers(): DTParsers<Owner> {
     return {
@@ -14,19 +14,19 @@ class Owner extends DTClass<Owner> {
 }
 
 class Cat extends DTClass<Cat> {
-  numLives!: number; // required
-  breed!: string; // required
-  name?: string; // optional
-  owner!: Owner;
+  numLives!: number; // required property
+  breed!: string; // required property
+  name?: string; // optional property
+  owner!: Owner; // required property
 
   protected get parsers(): DTParsers<Cat> {
     return {
-      numLives: (v) => (typeof v === "number" ? v : 9),
-      breed: (v) => (typeof v === "string" ? v : "stray"),
-      name: (v) => (typeof v === "string" ? v : undefined),
+      numLives: (v) => Parsers.number(v) ?? 9,
+      breed: (v) => Parsers.string(v) ?? "stray",
+      name: (v) => Parsers.string(v),
       owner: (v) => Owner.tryParse(v) ?? Owner.empty(),
     };
-  } // required
+  }
 }
 
 const cat1 = new Cat({
@@ -62,6 +62,7 @@ console.log(cat2);
 
 const cat3 = cat2.copy({
   breed: "tiger",
+  numLives: undefined,
   owner: cat2.owner.copy({
     name: "bobby",
   }),
@@ -69,7 +70,7 @@ const cat3 = cat2.copy({
 console.log(cat3);
 /**
   Cat {
-    numLives: 8,
+    numLives: 9,
     breed: 'tiger',
     name: 'Kitteh',
     owner: Owner { name: 'bobby', age: -1 }
