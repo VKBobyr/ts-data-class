@@ -1,6 +1,6 @@
 # TS Data-Class
 
-This package aims to simplify and secure data parsing and manipulation in typescript by providing auto-generated constructors, helper methods, and parsing utilities with **minimal** boilerplate and full intellisence support.
+This package aims to simplify and secure data parsing and manipulation in typescript by providing auto-generated constructors, helper methods, and parsing utilities with **minimal** boilerplate and full intellisense support.
 
 Every instance of the data class will automatically have:
 
@@ -22,7 +22,7 @@ yarn: `yarn add ts-data-class`
 1. Define a class `T` that extends `DTClass<T>`
 2. Define class members, marking optional with `?:` and required with `!:`
 3. Define the `parsers` getter with a parser for each of the fields (full intellisense support)
-4. Use the class as you would any other but with all the data class perks with full intellisense support!
+4. Use the class as you would any other but with all the data class perks and full intellisense support!
 
 ##### Example:
 
