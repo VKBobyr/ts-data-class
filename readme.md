@@ -1,4 +1,5 @@
 # TS Data-Class
+[![codecov](https://codecov.io/gh/VKBobyr/ts-data-class/branch/master/graph/badge.svg?token=6YSAOL8LZT)](https://codecov.io/gh/VKBobyr/ts-data-class)
 
 This package aims to simplify and secure data parsing and manipulation in typescript by providing auto-generated constructors, helper methods, and parsing utilities with **minimal** boilerplate and full intellisense support.
 

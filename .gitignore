@@ -4,6 +4,7 @@ yarn.lock
 
 # generated files
 lib
+coverage
 
 # ide
 **/.idea/workspace.xml
