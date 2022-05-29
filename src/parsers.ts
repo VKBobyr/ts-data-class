@@ -34,7 +34,7 @@ export abstract class Parsers {
     let _v: number = v;
     if (params?.min) _v = Math.max(_v, params.min);
     if (params?.max) _v = Math.min(_v, params.max);
-    if (params?.roundTo !== undefined) _v = this.round(_v, params.roundTo);
+    if (params?.roundTo !== undefined) _v = Parsers.round(_v, params.roundTo);
     return _v;
   }
 
