@@ -35,7 +35,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
     return new Constructor(args);
   }
 
-  constructor(params: DTParams<T>) {
+  constructor(params: DTMembers<T>) {
     DTClass.assertIsObject(params);
 
     // @ts-ignore
@@ -154,6 +154,7 @@ export default abstract class DTClass<T extends DTClass<T>> {
     dc1: F | undefined,
     dc2: F | undefined
   ): boolean {
+    if (dc1 === dc2) return true
     const m1 = omitBy({ ...dc1 }, isUndefined);
     const m2 = omitBy({ ...dc2 }, isUndefined);
     return isEqual(m1, m2);
